@@ -51,6 +51,12 @@ Do NOT use Fleet for:
 3. Check `.planning/coordination/claims/` for external claims
 4. Determine input mode: directed, spec-driven, continuing, or undirected
 
+### Step 1b: LOG SESSION START
+
+```bash
+node scripts/telemetry-log.cjs --event campaign-start --agent fleet --session {session-slug}
+```
+
 ### Step 2: WORK QUEUE
 
 Produce a ranked list of campaigns with:
@@ -79,7 +85,12 @@ For each wave:
    - Campaign-specific direction and scope
    - Discovery briefs from previous waves (if any)
 
-2. **Spawn agents** with `isolation: "worktree"`:
+2. **Log wave start**:
+   ```bash
+   node scripts/telemetry-log.cjs --event wave-start --agent fleet --session {session-slug} --meta '{"wave":N,"agents":["name1","name2"]}'
+   ```
+
+3. **Spawn agents** with `isolation: "worktree"`:
    ```
    Agent(
      prompt: "{full context + direction}",
@@ -88,19 +99,29 @@ For each wave:
    )
    ```
 
-3. **Collect results** from all agents in the wave
+4. **Collect results** from all agents in the wave
 
-4. **Compress discoveries** for each agent:
+5. **Log per-agent results**:
+   ```bash
+   node scripts/telemetry-log.cjs --event agent-complete --agent {agent-name} --session {session-slug} --status {success|partial|failed}
+   ```
+
+6. **Compress discoveries** for each agent:
    - Extract HANDOFF blocks
    - Run `node scripts/compress-discovery.cjs` on each output
    - Write compressed briefs to `.planning/fleet/briefs/`
 
-5. **Merge branches** from worktrees:
+7. **Log wave complete**:
+   ```bash
+   node scripts/telemetry-log.cjs --event wave-complete --agent fleet --session {session-slug} --meta '{"wave":N,"status":"complete"}'
+   ```
+
+8. **Merge branches** from worktrees:
    - Review changes from each agent
    - If clean merge: merge the branch
    - If conflicts: record in session file, resolve or skip
 
-6. **Update session file** with wave results and accumulated discoveries
+9. **Update session file** with wave results and accumulated discoveries
 
 ### Step 4: DISCOVERY RELAY
 
@@ -125,7 +146,10 @@ After all waves:
 1. Run typecheck on the full project (all changes merged)
 2. Run tests if configured
 3. Update session file status to `completed`
-4. Log wave results to telemetry
+4. Log session completion:
+   ```bash
+   node scripts/telemetry-log.cjs --event campaign-complete --agent fleet --session {session-slug}
+   ```
 5. Output final HANDOFF
 
 ## Fleet Session File Format

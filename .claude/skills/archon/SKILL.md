@@ -44,6 +44,10 @@ On every invocation:
    - **Resuming**: active campaign exists → read it, continue from Active Context
    - **Directed**: user gave a direction → create new campaign, decompose, begin
    - **Undirected**: no direction, no active campaign → run Health Diagnostic
+5. **Log campaign start** (new campaigns only):
+   ```bash
+   node scripts/telemetry-log.cjs --event campaign-start --agent archon --session {campaign-slug}
+   ```
 
 ### Step 2: DECOMPOSE (new campaigns only)
 
@@ -70,17 +74,25 @@ Break the direction into 3-8 phases:
 For each phase:
 
 1. **Direction check**: Is this phase still aligned with the campaign goal?
-2. **Delegate**: Spawn a sub-agent with full context injection:
+2. **Log delegation start**:
+   ```bash
+   node scripts/telemetry-log.cjs --event agent-start --agent {delegate-name} --session {campaign-slug}
+   ```
+3. **Delegate**: Spawn a sub-agent with full context injection:
    - CLAUDE.md content
    - `.claude/agent-context/rules-summary.md`
    - Phase-specific direction and scope
    - Relevant decisions from the campaign's Decision Log
-3. **Review**: Read the sub-agent's HANDOFF. Did it accomplish the phase goal?
-4. **Record**: Update the campaign file:
+4. **Review**: Read the sub-agent's HANDOFF. Did it accomplish the phase goal?
+5. **Log delegation result**:
+   ```bash
+   node scripts/telemetry-log.cjs --event agent-complete --agent {delegate-name} --session {campaign-slug} --status {success|partial|failed}
+   ```
+6. **Record**: Update the campaign file:
    - Mark the phase complete/partial/failed
    - Add entries to the Feature Ledger
    - Log any decisions to the Decision Log
-5. **Continue**: Move to the next phase
+7. **Continue**: Move to the next phase
 
 ### Step 4: VERIFY (after build phases)
 
@@ -109,7 +121,11 @@ When all phases are done:
 2. Update campaign status to `completed`
 3. Move campaign file to `.planning/campaigns/completed/`
 4. Release any scope claims
-5. Output a final HANDOFF
+5. Log campaign completion:
+   ```bash
+   node scripts/telemetry-log.cjs --event campaign-complete --agent archon --session {campaign-slug}
+   ```
+6. Output a final HANDOFF
 
 ## Health Diagnostic (Undirected Mode)
 
