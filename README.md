@@ -1,4 +1,4 @@
-# Claude Harness
+# Citadel
 
 An agent orchestration system for [Claude Code](https://claude.ai/claude-code). Route any task through the right tool at the right scale — from a one-line fix to a multi-day parallel campaign.
 
@@ -33,17 +33,19 @@ Four tiers. Use the cheapest one that fits.
 
 <table>
 <tr>
-<td width="25%" align="center">
-<img src="assets/card-skill.svg" width="200" alt="Skill — Domain Expert" />
+<td width="50%" align="center">
+<img src="assets/card-skill.svg" width="280" alt="Skill — Domain Expert" />
 </td>
-<td width="25%" align="center">
-<img src="assets/card-marshal.svg" width="200" alt="Marshal — Session Commander" />
+<td width="50%" align="center">
+<img src="assets/card-marshal.svg" width="280" alt="Marshal — Session Commander" />
 </td>
-<td width="25%" align="center">
-<img src="assets/card-archon.svg" width="200" alt="Archon — Autonomous Strategist" />
+</tr>
+<tr>
+<td width="50%" align="center">
+<img src="assets/card-archon.svg" width="280" alt="Archon — Autonomous Strategist" />
 </td>
-<td width="25%" align="center">
-<img src="assets/card-fleet.svg" width="200" alt="Fleet — Parallel Coordinator" />
+<td width="50%" align="center">
+<img src="assets/card-fleet.svg" width="280" alt="Fleet — Parallel Coordinator" />
 </td>
 </tr>
 </table>
