@@ -52,6 +52,21 @@ Classify the user's input into one of four tiers:
 - Safety: all Archon self-correction mechanisms active. Direction alignment every
   2 phases. Quality spot-checks every phase. Circuit breakers armed.
 
+### Tier 5: Feature Addition (Existing Codebase)
+- Trigger: user has an existing project + describes a feature, not a whole app
+  ("add auth", "add a dashboard", "add payment processing", "add dark mode")
+- Detection: project has source files (src/, app/, lib/, package.json with deps)
+  AND the user's description is a feature, not a standalone app
+- Action: /prd in feature mode → /architect in existing codebase mode → /archon
+- Key differences from greenfield tiers:
+  - PRD reads existing codebase before asking questions
+  - Architecture describes changes to existing files, not a standalone system
+  - Phase 0 is always "Baseline" — record current typecheck/test state
+  - Every phase end condition includes "no new typecheck errors" + "existing tests pass"
+  - Risk register always includes "regression in existing functionality"
+- Human checkpoints: after feature spec (PRD). Architecture can auto-approve if
+  the feature is well-scoped and all conditions are machine-verifiable.
+
 ### Tier Classification
 
 | Input Pattern | Tier |
@@ -60,14 +75,21 @@ Classify the user's input into one of four tiers:
 | "help me build", "I want to create", "guide me" | 2 |
 | "todo app", "blog", "dashboard", well-known app type | 3 |
 | "build me [detailed]", "create [app]", confident description | 4 |
+| "add [feature]", "implement [feature]", existing project + feature description | 5 |
 | Ambiguous | Default to Tier 2 (safest) |
 
 ## Protocol
 
 ### Step 1: CLASSIFY
 
-Read the user's input. Determine the tier. Announce:
-"This sounds like a [tier name]. I'll [brief description of what happens next]."
+Read the user's input. Determine the tier.
+
+**Use plain language, not tier numbers.** Announce what you'll do, not what tier they're in:
+- Tier 1: "I'll scaffold a blank project for you."
+- Tier 2: "I'll help you plan this out step by step. First I'll draft what we're building, then we'll agree on the approach before I write any code."
+- Tier 3: "This looks like a [type] app — I have a starting point for that. I'll show you the plan and you can adjust before I build."
+- Tier 4: "I'll plan this, show you the plan for approval, then build and verify it end to end."
+- Tier 5: "I'll read your existing codebase first, then plan how to add [feature] without breaking anything. You'll approve the plan before I touch any code."
 
 If the classification is wrong, the user can override:
 "Actually, just scaffold it" → Tier 1
@@ -108,6 +130,21 @@ If the classification is wrong, the user can override:
 5. Execute autonomously until complete or parked
 6. On completion: run full verification of all end conditions from the PRD
 7. Present results to user
+
+**Tier 5 (Feature Addition):**
+1. Read the existing codebase — file tree, package.json, key entry points, existing patterns
+2. Invoke /prd in feature mode (reads codebase before asking questions, max 2 questions)
+3. User approves feature spec (one mandatory checkpoint)
+4. Invoke /architect in existing codebase mode:
+   - Phase 0 is always "Baseline" — run typecheck and tests, record counts
+   - File tree shows only new + modified files
+   - Auto-approve if all conditions are machine-verifiable
+5. Create Archon campaign. Every phase end condition includes:
+   - "No new typecheck errors vs baseline"
+   - "Existing tests pass"
+6. Execute with all Archon safety systems active
+7. On completion: verify all feature end conditions PLUS baseline regression check
+8. Present results — what was added, what was verified, what still passes
 
 ### Step 3: VERIFY (All Tiers except 1)
 

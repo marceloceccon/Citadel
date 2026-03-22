@@ -19,24 +19,53 @@ that Archon reads and executes.
 
 ## When to Use
 
-- After /prd produces an approved PRD
-- When /do routes a build request that has a PRD
+- After /prd produces an approved PRD (greenfield or feature mode)
+- When the user has a clear direction + existing codebase (no PRD needed)
+- When /do routes a build request
 - When the user has a spec and wants a build plan
 
 ## Inputs
 
-A PRD file path (from /prd) or a user-provided spec. If neither exists, tell
-the user to run /prd first.
+One of:
+1. A PRD file path (from /prd) — preferred, contains structured requirements
+2. A user-provided spec or description + an existing codebase — sufficient
+3. Neither — suggest /prd first, but don't hard-gate. If the user has a clear
+   direction ("add auth to my app"), that + the existing code IS the input.
+
+## Mode Detection
+
+**Greenfield mode**: PRD exists with `Mode: greenfield`, or no existing source files.
+Produces a complete architecture from scratch.
+
+**Feature mode**: PRD exists with `Mode: feature`, OR the user describes a feature
+and the project has existing source files. The architecture describes changes to
+existing code, not a standalone system.
+
+In feature mode:
+- Read the existing file tree FIRST — understand the current architecture before planning changes
+- Read key files (package.json, tsconfig, main entry points, existing patterns)
+- The File Tree section shows ONLY new and modified files, not the entire project
+- Phases include a Phase 0: "Baseline" that records current typecheck/test state
+- Every phase's end conditions include "no new typecheck errors" and "existing tests pass"
+- The Risk Register includes "regression in existing functionality" as a default risk
 
 ## Protocol
 
 ### Step 1: READ
 
-Read the PRD. Extract:
+**If PRD exists**, read it. Extract:
 - Core features (the numbered list)
 - Technical decisions (stack choices)
 - End conditions (what "done" looks like)
 - Out of scope (what NOT to build)
+- Integration points (feature mode)
+
+**If no PRD**, read the codebase instead:
+- Scan the file tree for structure and conventions
+- Read package.json / equivalent for dependencies and scripts
+- Read the main entry point(s) to understand the architecture
+- Use the user's description as the feature spec
+- Infer end conditions from the description ("add auth" → "protected routes return 401 without token")
 
 ### Step 2: EVALUATE OPTIONS (for non-trivial decisions)
 
@@ -73,9 +102,10 @@ Write to `.planning/architecture-{slug}.md`:
 > PRD: .planning/prd-{slug}.md
 > Date: {ISO date}
 
-## File Tree (Target State)
-{The complete file tree of the finished v1. Every file listed.
-This is the map. Agents read this before creating files.}
+## File Tree
+{Greenfield: The complete file tree of the finished v1. Every file listed.
+Feature mode: ONLY new and modified files. Prefix modified files with ~.
+Example: ~ src/routes/index.ts (modified), + src/auth/middleware.ts (new)}
 
 ## Component Breakdown
 {For each core feature from the PRD:}

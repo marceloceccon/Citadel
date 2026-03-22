@@ -67,7 +67,7 @@ Four tiers. Use the cheapest one that fits.
 |---|---|---|
 | PRD | Generates a Product Requirements Document from an app description | `/prd` |
 | Architect | Converts a PRD into file tree, build phases, and end conditions | `/architect` |
-| Create App | End-to-end app creation with 4 tiers: blank, guided, templated, generated | `/create-app` |
+| Create App | End-to-end app creation with 5 tiers: blank, guided, templated, generated, or feature addition | `/create-app` |
 
 ### Core (6)
 | Skill | What It Does | Invoke |

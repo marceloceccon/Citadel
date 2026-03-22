@@ -18,27 +18,59 @@ can execute. It does NOT build anything. It produces the spec that drives the bu
 
 ## When to Use
 
-- User describes an app they want to build
+- User describes an app they want to build (greenfield mode)
+- User wants to add a feature to an existing project (feature mode)
 - User has a vague idea that needs structure
-- Before starting any Archon campaign for a new project
-- When /do routes a "create app" or "build me" request
+- Before starting any Archon campaign for a new project or feature
+- When /do routes a "create app", "build me", or "add [feature]" request
+
+## Mode Detection
+
+Before starting, determine the mode:
+
+**Greenfield mode**: No existing source files, or user explicitly says "new app" / "from scratch."
+Produces a full PRD as described below.
+
+**Feature mode**: The project already has source files (check for `src/`, `app/`, `lib/`,
+`package.json` with dependencies, or similar). The user describes a feature to add, not a
+whole app ("add auth", "add a dashboard", "add payment processing").
+
+In feature mode:
+- Read the existing file tree and `package.json`/equivalent before asking questions
+- The existing stack is a given — don't recommend alternatives
+- "Architecture" section describes integration points with existing code, not standalone shape
+- End conditions MUST include regression checks: "existing tests still pass", "typecheck has no new errors"
+- "Out of Scope" is relative to the feature, not the whole app
+- Technical Decisions only covers decisions the feature introduces (new dependencies, new patterns)
+
+The PRD template below works for both modes. Feature mode just scopes it tighter.
 
 ## Protocol
 
 ### Step 1: UNDERSTAND
 
-Read the user's description. Identify:
+Read the user's description. Determine mode (greenfield vs feature).
+
+**In greenfield mode**, identify:
 - What the app does (core functionality)
 - Who it's for (user type)
 - What success looks like (the user's actual goal)
 
+**In feature mode**, identify:
+- What the feature does within the existing app
+- What existing code it integrates with (read the file tree)
+- What the user's existing stack is (read package.json, tsconfig, etc.)
+
 If any of these are unclear, ask up to 3 focused questions. Not a questionnaire.
 Just the questions that would change the architecture. Examples:
-- "Is this for you personally or will other people use it?"
-- "Does this need user accounts and login?"
-- "What's the one thing it absolutely has to do well?"
+- Greenfield: "Is this for you personally or will other people use it?"
+- Greenfield: "Does this need user accounts and login?"
+- Feature: "Should this integrate with your existing auth, or is this a standalone feature?"
+- Feature: "I see you're using [library]. Should the new feature follow that pattern?"
+- Both: "What's the one thing it absolutely has to do well?"
 
-Do NOT ask about tech stack yet. That comes in Step 3.
+Do NOT ask about tech stack in greenfield mode yet. That comes in Step 3.
+In feature mode, the stack is already decided — skip to Step 3 directly.
 
 ### Step 2: RESEARCH (Optional)
 
@@ -54,12 +86,13 @@ Skip this step if the concept is simple enough (landing page, personal tool, CRU
 Produce a structured PRD. Write to `.planning/prd-{slug}.md`:
 
 ```markdown
-# PRD: {App Name}
+# PRD: {App Name or Feature Name}
 
 > Description: {One sentence}
 > Author: {user}
 > Date: {ISO date}
 > Status: draft
+> Mode: {greenfield | feature}
 
 ## Problem
 {What problem does this solve? Why does the user want it?}
@@ -83,16 +116,33 @@ Being explicit about what's out prevents scope creep.}
 - **Auth**: {recommendation, or "none" if no user accounts}
 - **Deployment**: {recommendation}
 
+{In feature mode, only list decisions the feature introduces.
+Existing stack decisions are inherited, not re-evaluated.}
+
 ## Architecture
 {High-level description. 3-5 sentences max. How the pieces connect.
 NOT a file tree. NOT implementation details. Just the shape.}
 
-## End Conditions (v1 Definition of Done)
-{Machine-verifiable conditions that mean v1 is complete.}
+{In feature mode: describe integration points with existing code.
+"The new auth middleware hooks into the existing Express router at
+src/routes/index.ts. User model extends the existing Prisma schema."}
+
+## Integration Points (feature mode only)
+{Skip this section in greenfield mode.}
+- **Existing files modified**: {list of files the feature will touch}
+- **New files created**: {list of new files}
+- **Dependencies added**: {new packages, if any}
+- **Patterns followed**: {existing patterns in the codebase this feature should match}
+
+## End Conditions (Definition of Done)
+{Machine-verifiable conditions that mean the feature/app is complete.}
 - [ ] {condition 1: e.g., "Landing page renders at localhost:3000"}
 - [ ] {condition 2: e.g., "User can create account and log in"}
 - [ ] {condition 3: e.g., "Core feature X works end-to-end"}
-- [ ] {condition 4: e.g., "Deploys to [platform] without errors"}
+
+{In feature mode, ALWAYS include these regression conditions:}
+- [ ] Existing tests pass with 0 new failures
+- [ ] Typecheck passes with 0 new errors
 
 ## Open Questions
 {Anything the PRD author couldn't decide. These become questions
