@@ -204,6 +204,7 @@ When all phases are done:
    node scripts/telemetry-log.cjs --event campaign-complete --agent archon --session {campaign-slug}
    ```
 6. Output a final HANDOFF
+7. Suggest `/postmortem` to generate a campaign postmortem
 
 ## Health Diagnostic (Undirected Mode)
 

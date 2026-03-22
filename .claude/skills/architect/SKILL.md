@@ -153,6 +153,24 @@ Phase 3 + 4 → Phase 5
 1. {risk}: {mitigation}
 2. {risk}: {mitigation}
 3. {risk}: {mitigation}
+
+## Deployment Strategy
+{If the PRD specifies a deployment target. Skip if "deploy later" or static-only.}
+- **Platform**: {from PRD Technical Decisions — see .planning/_templates/deploy/}
+- **Method**: {deployment command}
+- **Environment variables**: {list required env vars, reference .env.example}
+- **Pre-deploy checks**: {typecheck, test, build all pass}
+
+{The final build phase should be "Deploy" when a platform is specified:}
+### Phase N (Final): Deploy
+- **Goal**: Deploy the verified app to {platform}
+- **Dependencies**: All previous phases complete and verified
+- **End Conditions**:
+  - [ ] App deployed successfully (no build errors)
+  - [ ] Production URL accessible and returns expected content
+
+{A failed deploy does NOT fail the campaign. The app works locally. Deploy is bonus.
+If the user says "don't deploy" or "I'll deploy later", omit this phase entirely.}
 ```
 
 ### Step 4: CONNECT TO CAMPAIGN

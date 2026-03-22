@@ -121,6 +121,9 @@ frontmatter for name and description.
 | "debug", "root cause", "diagnose", "why is", "investigate bug" | `/systematic-debugging` |
 | "research fleet", "parallel research", "multi-angle research", "compare options" | `/research-fleet` |
 | "preview", "screenshot", "visual check", "does it render" | `/live-preview` |
+| "postmortem", "retro", "what broke", "what happened", "debrief" | `/postmortem` |
+| "design", "style guide", "design manifest", "visual consistency" | `/design` |
+| "qa", "test the app", "click through", "does it work", "browser test" | `/qa` |
 
 If ONE skill matches with high confidence → invoke it directly. Done.
 If MULTIPLE skills match → fall through to Tier 3.
@@ -223,6 +226,11 @@ RESEARCH & DEBUGGING
   /experiment           Metric-driven optimization loops
   /systematic-debugging Root cause analysis (4-phase)
   /live-preview         Mid-build visual verification
+
+QUALITY & VERIFICATION
+  /design               Design manifest generator (extract or generate)
+  /qa                   Browser QA via Playwright (optional dependency)
+  /postmortem           Campaign postmortem from telemetry + git history
 
 UTILITIES
   /session-handoff      Session context transfer

@@ -166,6 +166,9 @@ Present the final state:
 - What needs attention (anything that failed or was sent to Review Queue)
 - How to run it (the command to start the app)
 - How to continue (what v2 could look like)
+- If deployed: "App is live at {URL}"
+- If deploy failed or skipped: "App verified locally. To deploy: {specific command}"
+- Suggest /postmortem to generate a campaign postmortem
 
 ## Safety Systems
 

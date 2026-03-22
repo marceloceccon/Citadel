@@ -6,7 +6,7 @@
 
 Run autonomous coding campaigns with Claude Code. Route any task through the right tool at the right scale — from a one-line fix to a multi-day parallel campaign.
 
-**21 skills | 3 autonomous agents | 8 lifecycle hooks | campaign persistence | fleet coordination**
+**24 skills | 3 autonomous agents | 8 lifecycle hooks | campaign persistence | fleet coordination**
 
 ## Quickstart
 
@@ -60,7 +60,7 @@ Four tiers. Use the cheapest one that fits.
 </tr>
 </table>
 
-## Skills (21)
+## Skills (24)
 
 ### App Creation (3)
 | Skill | What It Does | Invoke |
@@ -95,6 +95,13 @@ Four tiers. Use the cheapest one that fits.
 | Archon | Multi-session campaigns with self-correction and quality gates | `/archon` |
 | Fleet | Parallel agents with discovery sharing and coordination safety | `/fleet` |
 | Autopilot | Intake-to-delivery pipeline for pending work items | `/autopilot` |
+
+### Quality & Verification (3)
+| Skill | What It Does | Invoke |
+|---|---|---|
+| Design | Generates and maintains a design manifest for visual consistency | `/design` |
+| QA | Browser-based interaction testing via Playwright (optional dependency) | `/qa` |
+| Postmortem | Auto-generates structured postmortems from completed campaigns | `/postmortem` |
 
 ### Utilities (3)
 | Skill | What It Does | Invoke |

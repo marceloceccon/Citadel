@@ -59,9 +59,10 @@ function main() {
 
     const relativePath = path.relative(PROJECT_ROOT, filePath).replace(/\\/g, '/');
 
-    // Run performance lint and dependency pattern checks
+    // Run performance lint, dependency pattern checks, and design manifest checks
     performanceLint(filePath, relativePath);
     dependencyPatternLint(filePath, relativePath);
+    designManifestLint(filePath, relativePath);
 
     // Run type check
     const exitCode = typeCheck(filePath, relativePath);
@@ -316,6 +317,80 @@ function dependencyPatternLint(filePath, relativePath) {
   if (warnings.length > 0) {
     process.stdout.write(
       '[dep-lint] ' + relativePath + ':\n' + warnings.map(function(w) { return '  - ' + w; }).join('\n') + '\n'
+    );
+  }
+}
+
+
+
+// ── Design Manifest Lint ────────────────────────────────────────────────────
+
+let _cachedManifest = null;
+let _manifestChecked = false;
+
+function loadDesignManifest() {
+  if (_manifestChecked) return _cachedManifest;
+  _manifestChecked = true;
+  try {
+    const manifestPath = path.join(PROJECT_ROOT, '.planning', 'design-manifest.md');
+    if (!fs.existsSync(manifestPath)) return null;
+    _cachedManifest = fs.readFileSync(manifestPath, 'utf8');
+  } catch {
+    _cachedManifest = null;
+  }
+  return _cachedManifest;
+}
+
+function extractManifestColors(manifest) {
+  const colors = [];
+  const colorRegex = /#[0-9a-fA-F]{3,8}\b/g;
+  const lines = manifest.split('\n');
+  let inColors = false;
+  for (const line of lines) {
+    if (/^## Colors/.test(line)) { inColors = true; continue; }
+    if (/^## [^C]/.test(line) && inColors) break;
+    if (inColors) {
+      let match;
+      while ((match = colorRegex.exec(line)) !== null) {
+        colors.push(match[0].toLowerCase());
+      }
+    }
+  }
+  return colors;
+}
+
+function designManifestLint(filePath, relativePath) {
+  // Only check style-relevant files
+  if (!/\.(css|scss|tsx|jsx)$/.test(filePath)) return;
+
+  const manifest = loadDesignManifest();
+  if (!manifest) return;
+
+  let content;
+  try {
+    content = fs.readFileSync(filePath, 'utf8');
+  } catch {
+    return;
+  }
+
+  const paletteColors = extractManifestColors(manifest);
+  if (paletteColors.length === 0) return;
+
+  // Find hex colors in the edited file
+  const hexRegex = /#[0-9a-fA-F]{3,8}\b/g;
+  const foundColors = new Set();
+  let match;
+  while ((match = hexRegex.exec(content)) !== null) {
+    foundColors.add(match[0].toLowerCase());
+  }
+
+  const offPalette = [...foundColors].filter(c => !paletteColors.includes(c));
+
+  if (offPalette.length > 0) {
+    process.stdout.write(
+      `[design] ${relativePath}: Found ${offPalette.length} color(s) not in design manifest palette: ${offPalette.slice(0, 5).join(', ')}` +
+      (offPalette.length > 5 ? ` (+${offPalette.length - 5} more)` : '') +
+      `\n  Palette: ${paletteColors.slice(0, 8).join(', ')}${paletteColors.length > 8 ? ' ...' : ''}\n`
     );
   }
 }

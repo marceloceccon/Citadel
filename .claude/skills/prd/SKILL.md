@@ -199,3 +199,10 @@ Don't lock to one stack. But do make opinionated recommendations:
 - If they need auth: recommend the simplest option for their stack. Don't default to Supabase just because it's common.
 - If they need a database: SQLite for simple, PostgreSQL for anything multi-user
 - ALWAYS explain the reasoning. The user should understand why, not just what.
+
+**Deployment selection** (for the Deployment field in Technical Decisions):
+- Static sites / landing pages → Vercel or Netlify (free tier, zero config)
+- Full-stack with database → Railway (simplest for beginners)
+- API only → Railway or Fly.io
+- "I don't want to deploy yet" → static (local only), architect skips the deploy phase
+- See `.planning/_templates/deploy/` for platform-specific details
