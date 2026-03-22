@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300">
+  <defs>
+    <linearGradient id="skills-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="300" rx="16" fill="url(#skills-bg)" stroke="#00d2ff" stroke-width="1" stroke-opacity="0.2"/>
+
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="14" fill="#8892b0" letter-spacing="3">SKILLS OVERVIEW</text>
+
+  <!-- Column 1: Core -->
+  <g transform="translate(80, 65)">
+    <rect x="-10" y="-5" width="240" height="215" rx="8" fill="#00d2ff" fill-opacity="0.04" stroke="#00d2ff" stroke-width="0.5" stroke-opacity="0.15"/>
+    <text x="110" y="20" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="13" font-weight="700" fill="#00d2ff" letter-spacing="1">CORE</text>
+    <text x="110" y="40" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="28" font-weight="700" fill="#ffffff">6</text>
+    <g font-family="'Courier New',monospace" font-size="11" fill="#ccd6f6">
+      <text x="10" y="70">/review</text>
+      <text x="10" y="90">/test-gen</text>
+      <text x="10" y="110">/doc-gen</text>
+      <text x="10" y="130">/refactor</text>
+      <text x="10" y="150">/scaffold</text>
+      <text x="10" y="170">/create-skill</text>
+    </g>
+  </g>
+
+  <!-- Column 2: Research & Debugging -->
+  <g transform="translate(370, 65)">
+    <rect x="-10" y="-5" width="240" height="215" rx="8" fill="#f0b429" fill-opacity="0.04" stroke="#f0b429" stroke-width="0.5" stroke-opacity="0.15"/>
+    <text x="110" y="20" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="13" font-weight="700" fill="#f0b429" letter-spacing="1">RESEARCH</text>
+    <text x="110" y="40" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="28" font-weight="700" fill="#ffffff">4</text>
+    <text x="170" y="40" font-family="'Segoe UI',system-ui,sans-serif" font-size="11" fill="#f0b429">NEW</text>
+    <g font-family="'Courier New',monospace" font-size="11" fill="#ccd6f6">
+      <text x="10" y="70">/research</text>
+      <text x="10" y="90">/research-fleet</text>
+      <text x="10" y="110">/experiment</text>
+      <text x="10" y="130">/systematic-debugging</text>
+    </g>
+  </g>
+
+  <!-- Column 3: Orchestration -->
+  <g transform="translate(660, 65)">
+    <rect x="-10" y="-5" width="240" height="215" rx="8" fill="#00d2ff" fill-opacity="0.04" stroke="#00d2ff" stroke-width="0.5" stroke-opacity="0.15"/>
+    <text x="110" y="20" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="13" font-weight="700" fill="#00d2ff" letter-spacing="1">ORCHESTRATION</text>
+    <text x="110" y="40" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="28" font-weight="700" fill="#ffffff">5</text>
+    <g font-family="'Courier New',monospace" font-size="11" fill="#ccd6f6">
+      <text x="10" y="70">/do</text>
+      <text x="10" y="90">/marshal</text>
+      <text x="10" y="110">/archon</text>
+      <text x="10" y="130">/fleet</text>
+      <text x="10" y="150">/autopilot</text>
+    </g>
+  </g>
+
+  <!-- Column 4: Utilities -->
+  <g transform="translate(950, 65)">
+    <rect x="-10" y="-5" width="240" height="215" rx="8" fill="#8892b0" fill-opacity="0.04" stroke="#8892b0" stroke-width="0.5" stroke-opacity="0.15"/>
+    <text x="110" y="20" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="13" font-weight="700" fill="#8892b0" letter-spacing="1">UTILITIES</text>
+    <text x="110" y="40" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="28" font-weight="700" fill="#ffffff">3</text>
+    <g font-family="'Courier New',monospace" font-size="11" fill="#ccd6f6">
+      <text x="10" y="70">/live-preview</text>
+      <text x="10" y="90">/session-handoff</text>
+      <text x="10" y="110">/setup</text>
+    </g>
+  </g>
+</svg>

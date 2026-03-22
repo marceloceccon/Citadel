@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <defs>
+    <linearGradient id="hero-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d2ff"/>
+      <stop offset="100%" style="stop-color:#3a7bd5"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f0b429"/>
+      <stop offset="100%" style="stop-color:#f09819"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="400" rx="16" fill="url(#hero-bg)" stroke="#00d2ff" stroke-width="1" stroke-opacity="0.3"/>
+
+  <!-- Top accent -->
+  <rect x="30" y="12" width="1140" height="3" rx="1.5" fill="url(#teal)" opacity="0.6"/>
+
+  <!-- Title -->
+  <text x="80" y="75" font-family="'Segoe UI',system-ui,sans-serif" font-size="36" font-weight="700" fill="#ffffff" letter-spacing="2">WAVE 1 + WAVE 2</text>
+  <text x="80" y="105" font-family="'Segoe UI',system-ui,sans-serif" font-size="16" fill="#00d2ff" letter-spacing="1" opacity="0.9">RESEARCH, SELF-CORRECTION, AND SAFETY</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="125" x2="500" y2="125" stroke="#00d2ff" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Stats left column -->
+  <g font-family="'Segoe UI',system-ui,sans-serif">
+    <text x="80" y="170" font-size="48" font-weight="700" fill="#00d2ff">9</text>
+    <text x="130" y="170" font-size="18" fill="#ccd6f6">new skills</text>
+
+    <text x="80" y="220" font-size="48" font-weight="700" fill="#f0b429">4</text>
+    <text x="130" y="220" font-size="18" fill="#ccd6f6">safety systems</text>
+
+    <text x="80" y="270" font-size="48" font-weight="700" fill="#ffffff">18</text>
+    <text x="142" y="270" font-size="18" fill="#ccd6f6">total skills</text>
+  </g>
+
+  <!-- Bottom tagline -->
+  <text x="80" y="340" font-family="'Segoe UI',system-ui,sans-serif" font-size="13" fill="#8892b0">
+    Built from 27 postmortems and a verification campaign that found 4 bugs in its own codebase.
+  </text>
+
+  <!-- Right side: orchestration ladder diagram -->
+  <g transform="translate(750, 100)">
+    <!-- Nodes -->
+    <circle cx="60" cy="30" r="24" fill="none" stroke="#00d2ff" stroke-width="1.5" opacity="0.7"/>
+    <text x="60" y="35" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#00d2ff" font-weight="600">SKILL</text>
+
+    <circle cx="200" cy="30" r="24" fill="none" stroke="#00d2ff" stroke-width="1.5" opacity="0.7"/>
+    <text x="200" y="35" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#00d2ff" font-weight="600">MARSHAL</text>
+
+    <circle cx="340" cy="30" r="24" fill="none" stroke="#f0b429" stroke-width="1.5" opacity="0.7"/>
+    <text x="340" y="35" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#f0b429" font-weight="600">ARCHON</text>
+
+    <circle cx="200" cy="150" r="24" fill="none" stroke="#f0b429" stroke-width="1.5" opacity="0.7"/>
+    <text x="200" y="155" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#f0b429" font-weight="600">FLEET</text>
+
+    <!-- Connections -->
+    <line x1="84" y1="30" x2="176" y2="30" stroke="#00d2ff" stroke-width="1" opacity="0.3"/>
+    <line x1="224" y1="30" x2="316" y2="30" stroke="#00d2ff" stroke-width="1" opacity="0.3"/>
+    <line x1="200" y1="54" x2="200" y2="126" stroke="#f0b429" stroke-width="1" opacity="0.3"/>
+
+    <!-- Arrow heads -->
+    <polygon points="176,26 176,34 168,30" fill="#00d2ff" opacity="0.4"/>
+    <polygon points="316,26 316,34 308,30" fill="#00d2ff" opacity="0.4"/>
+    <polygon points="196,126 204,126 200,118" fill="#f0b429" opacity="0.4"/>
+
+    <!-- Labels -->
+    <text x="60" y="70" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8892b0">cheapest</text>
+    <text x="340" y="70" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8892b0">autonomous</text>
+    <text x="200" y="190" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8892b0">parallel</text>
+
+    <!-- /do router label -->
+    <rect x="92" y="90" width="80" height="24" rx="4" fill="#00d2ff" fill-opacity="0.1" stroke="#00d2ff" stroke-width="1" stroke-opacity="0.3"/>
+    <text x="132" y="106" text-anchor="middle" font-family="'Courier New',monospace" font-size="11" fill="#00d2ff">/do</text>
+    <text x="132" y="130" text-anchor="middle" font-family="'Segoe UI',system-ui,sans-serif" font-size="8" fill="#8892b0">routes everything</text>
+  </g>
+
+  <!-- Bottom accent -->
+  <rect x="30" y="385" width="1140" height="3" rx="1.5" fill="url(#teal)" opacity="0.4"/>
+</svg>
