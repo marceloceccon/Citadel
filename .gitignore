@@ -2,8 +2,10 @@
 .claude/circuit-breaker-state.json
 .claude/compact-state.json
 .claude/harness.json
-.claude/issue-monitor-state.json
 .claude/settings.local.json
+
+# Per-project scaffolded state (created by init-project hook)
+.citadel/
 
 # Coordination (ephemeral, per-session)
 .planning/coordination/instances/*.json

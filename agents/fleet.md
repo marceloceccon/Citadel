@@ -55,7 +55,7 @@ directly. You read, think, plan, spawn agents, collect results, and coordinate.
 1. Read CLAUDE.md (project conventions)
 2. Check `.planning/campaigns/` for active campaigns
 3. Check `.planning/coordination/claims/` for external claims
-4. Log session start (new sessions only): `node scripts/telemetry-log.cjs --event campaign-start --agent fleet --session {session-slug}`
+4. Log session start (new sessions only): `node .citadel/scripts/telemetry-log.cjs --event campaign-start --agent fleet --session {session-slug}`
 5. Determine input mode:
    a. **Directed** (`/fleet [direction]`): decompose into parallel streams
    b. **Spec-driven** (`/fleet [path]`): read spec, decompose into streams
@@ -87,10 +87,10 @@ Wave N: Continue until queue empty or context low
 ### Discovery Relay
 
 After each wave:
-1. Log per-agent results: `node scripts/telemetry-log.cjs --event agent-complete --agent {agent-name} --session {session-slug} --status {success|partial|failed}`
-2. Log wave complete: `node scripts/telemetry-log.cjs --event wave-complete --agent fleet --session {session-slug} --meta '{"wave":N,"status":"complete"}'`
+1. Log per-agent results: `node .citadel/scripts/telemetry-log.cjs --event agent-complete --agent {agent-name} --session {session-slug} --status {success|partial|failed}`
+2. Log wave complete: `node .citadel/scripts/telemetry-log.cjs --event wave-complete --agent fleet --session {session-slug} --meta '{"wave":N,"status":"complete"}'`
 3. Collect HANDOFF blocks from all agents
-4. Run `node scripts/compress-discovery.cjs` on each output
+4. Run `node .citadel/scripts/compress-discovery.cjs` on each output
 5. Write compressed briefs (~500 tokens each) to `.planning/fleet/briefs/`
 6. Inject briefs into next wave's agent context
 7. Update session file with wave results and accumulated discoveries
@@ -146,4 +146,4 @@ Context usage: {estimate}
 2. Run tests if configured
 3. Update session status to `completed`
 4. Write final HANDOFF summary
-5. Log session completion: `node scripts/telemetry-log.cjs --event campaign-complete --agent fleet --session {session-slug}`
+5. Log session completion: `node .citadel/scripts/telemetry-log.cjs --event campaign-complete --agent fleet --session {session-slug}`

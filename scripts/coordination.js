@@ -28,7 +28,7 @@ const crypto = require('crypto');
 
 // ── Paths ────────────────────────────────────────────────────────────────────
 
-const ROOT = process.cwd();
+const ROOT = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 const COORD_DIR = path.join(ROOT, '.planning', 'coordination');
 const INSTANCES_DIR = path.join(COORD_DIR, 'instances');
 const CLAIMS_DIR = path.join(COORD_DIR, 'claims');

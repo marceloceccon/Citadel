@@ -54,7 +54,7 @@ Do NOT use Fleet for:
 ### Step 1b: LOG SESSION START
 
 ```bash
-node scripts/telemetry-log.cjs --event campaign-start --agent fleet --session {session-slug}
+node .citadel/scripts/telemetry-log.cjs --event campaign-start --agent fleet --session {session-slug}
 ```
 
 ### Step 2: WORK QUEUE
@@ -87,7 +87,7 @@ For each wave:
 
 2. **Log wave start**:
    ```bash
-   node scripts/telemetry-log.cjs --event wave-start --agent fleet --session {session-slug} --meta '{"wave":N,"agents":["name1","name2"]}'
+   node .citadel/scripts/telemetry-log.cjs --event wave-start --agent fleet --session {session-slug} --meta '{"wave":N,"agents":["name1","name2"]}'
    ```
 
 3. **Spawn agents** with `isolation: "worktree"`:
@@ -103,17 +103,17 @@ For each wave:
 
 5. **Log per-agent results**:
    ```bash
-   node scripts/telemetry-log.cjs --event agent-complete --agent {agent-name} --session {session-slug} --status {success|partial|failed}
+   node .citadel/scripts/telemetry-log.cjs --event agent-complete --agent {agent-name} --session {session-slug} --status {success|partial|failed}
    ```
 
 6. **Compress discoveries** for each agent:
    - Extract HANDOFF blocks
-   - Run `node scripts/compress-discovery.cjs` on each output
+   - Run `node .citadel/scripts/compress-discovery.cjs` on each output
    - Write compressed briefs to `.planning/fleet/briefs/`
 
 7. **Log wave complete**:
    ```bash
-   node scripts/telemetry-log.cjs --event wave-complete --agent fleet --session {session-slug} --meta '{"wave":N,"status":"complete"}'
+   node .citadel/scripts/telemetry-log.cjs --event wave-complete --agent fleet --session {session-slug} --meta '{"wave":N,"status":"complete"}'
    ```
 
 8. **Merge branches** from worktrees:
@@ -148,7 +148,7 @@ After all waves:
 3. Update session file status to `completed`
 4. Log session completion:
    ```bash
-   node scripts/telemetry-log.cjs --event campaign-complete --agent fleet --session {session-slug}
+   node .citadel/scripts/telemetry-log.cjs --event campaign-complete --agent fleet --session {session-slug}
    ```
 5. Output final HANDOFF
 
@@ -256,7 +256,7 @@ exceeds its timeout:
 1. **Log the timeout**: Record in telemetry with the agent's instance ID, assigned
    scope, and elapsed time
    ```bash
-   node scripts/telemetry-log.cjs --event agent-timeout --agent {instance-id} --session {session-slug} --meta '{"scope":"{scope}","elapsed_ms":{ms}}'
+   node .citadel/scripts/telemetry-log.cjs --event agent-timeout --agent {instance-id} --session {session-slug} --meta '{"scope":"{scope}","elapsed_ms":{ms}}'
    ```
 2. **Check for partial output**: Read the agent's output file. If it contains
    a partial HANDOFF or usable findings, extract them.

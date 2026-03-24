@@ -79,7 +79,7 @@ function readConfig() {
     typecheck: { command: null, perFile: false },
     test: { command: null, framework: null },
     qualityRules: { builtIn: [], custom: [] },
-    protectedFiles: ['.claude/settings.json', '.claude/hooks/*'],
+    protectedFiles: ['.claude/harness.json'],
     features: { intakeScanner: true, telemetry: true },
   };
 }

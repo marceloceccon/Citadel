@@ -43,12 +43,12 @@ Classification runs top-to-bottom. First match wins. Each tier is cheaper than t
 
 Before routing, check if new skills have been added since last registration.
 
-1. Count directories in `.claude/skills/`
+1. Count installed Citadel skills (built-in from plugin + custom in project's `.claude/skills/`)
 2. Read `registeredSkillCount` from `.claude/harness.json`
 3. **If counts match**: continue to Tier 0. Zero cost.
 4. **If counts differ** (or harness.json doesn't exist yet):
    a. Read the `registeredSkills` array from harness.json (default: `[]`)
-   b. Diff directory names against the registered list
+   b. Diff skill names against the registered list
    c. For each unknown skill: read ONLY lines 1-10 of its `SKILL.md` (frontmatter)
    d. Extract `name` and `description` from frontmatter
    e. Add the skill to the Tier 2 keyword table for this session using its
@@ -93,8 +93,8 @@ If matched → resume the active work. Done.
 
 ### Tier 2: Skill Keyword Match (Cost: ~0 tokens | Latency: <10ms)
 
-Match input against installed skill keywords. Scan `.claude/skills/*/SKILL.md`
-frontmatter for name and description.
+Match input against installed skill keywords from Citadel's built-in skills
+and any project-level custom skills in `.claude/skills/`.
 
 **Built-in skill triggers:**
 
@@ -189,13 +189,13 @@ Intake:
   {N} pending items in .planning/intake/
   Run /autopilot to process them.
 
-Skills: {N} installed (.claude/skills/)
-Hooks: {N} active (.claude/settings.json)
+Skills: {N} installed (Citadel plugin + .claude/skills/)
+Hooks: {N} active (Citadel plugin)
 ```
 
 ## /do --list
 
-List all installed skills by reading `.claude/skills/*/SKILL.md`:
+List all installed skills (Citadel built-in + project custom):
 
 ```
 === Installed Skills ===

@@ -86,11 +86,12 @@ For each issue, classify along these dimensions:
 | `medium` | Breaks a minor feature or has a workaround |
 | `low` | Cosmetic, edge case, or has an easy workaround |
 
-**Affected Component** — map to project directory:
-- `.claude/hooks/` — hook system
-- `.claude/skills/` — skill system
+**Affected Component** — map to project area:
+- Citadel hooks — hook system (managed by plugin)
+- Citadel skills — skill system (built-in from plugin)
+- `.claude/skills/` — custom project skills
 - `.claude/agents/` — agent system
-- `.claude/settings.json` — configuration
+- `.claude/harness.json` — project configuration
 - `.planning/` — planning/campaign system
 - `docs/` — documentation
 - Root files — project setup (README, package.json, CLAUDE.md)

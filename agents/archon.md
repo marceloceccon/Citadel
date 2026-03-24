@@ -57,10 +57,10 @@ context windows.
 8. On campaign completion: archive to `campaigns/completed/`
 9. Before context runs low: write Continuation State for next invocation
 10. Log telemetry at campaign start and completion:
-    - Start: `node scripts/telemetry-log.cjs --event campaign-start --agent archon --session {campaign-slug}`
-    - Complete: `node scripts/telemetry-log.cjs --event campaign-complete --agent archon --session {campaign-slug}`
-    - Per-phase delegation: `node scripts/telemetry-log.cjs --event agent-start --agent {delegate-name} --session {campaign-slug}`
-    - Phase result: `node scripts/telemetry-log.cjs --event agent-complete --agent {delegate-name} --session {campaign-slug} --status {success|partial|failed}`
+    - Start: `node .citadel/scripts/telemetry-log.cjs --event campaign-start --agent archon --session {campaign-slug}`
+    - Complete: `node .citadel/scripts/telemetry-log.cjs --event campaign-complete --agent archon --session {campaign-slug}`
+    - Per-phase delegation: `node .citadel/scripts/telemetry-log.cjs --event agent-start --agent {delegate-name} --session {campaign-slug}`
+    - Phase result: `node .citadel/scripts/telemetry-log.cjs --event agent-complete --agent {delegate-name} --session {campaign-slug} --status {success|partial|failed}`
 
 ## Campaign File Format
 

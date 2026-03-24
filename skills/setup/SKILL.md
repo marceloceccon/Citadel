@@ -64,32 +64,16 @@ Present options:
 
 Purpose: determines which skill to demonstrate and which features to highlight.
 
-### Step 2: SCAFFOLD (create directory structure)
+### Step 2: SCAFFOLD (verify and configure)
 
-Create the harness directory structure if it doesn't exist:
+The Citadel plugin's `init-project` hook automatically creates the `.planning/`
+directory structure, copies templates, and syncs utility scripts on session start.
+This step verifies the scaffold exists and generates project-specific configuration.
 
-```
-.claude/
-  harness.json          ← Generated from detected stack
-  (hooks are already in place from the harness repo)
-
-.planning/
-  intake/
-    _TEMPLATE.md
-  campaigns/
-    completed/
-  fleet/
-    outputs/
-    briefs/
-  coordination/
-    instances/
-    claims/
-  telemetry/
-  _templates/
-    campaign.md
-    intake-item.md
-    fleet-session.md
-```
+1. Verify `.planning/` directory exists (the init-project hook should have created it)
+   - If missing: warn the user that the Citadel plugin may not be properly installed
+2. Verify `.citadel/scripts/` exists (utility scripts synced from plugin)
+   - If missing: same warning
 
 **Generate `.claude/harness.json`** based on detected stack:
 
@@ -111,8 +95,7 @@ Create the harness directory structure if it doesn't exist:
     "custom": []
   },
   "protectedFiles": [
-    ".claude/settings.json",
-    ".claude/hooks/*"
+    ".claude/harness.json"
   ],
   "features": {
     "intakeScanner": true,
@@ -128,10 +111,10 @@ Create the harness directory structure if it doesn't exist:
 }
 ```
 
-**Skill registry rebuild:** During setup, scan all directories in `.claude/skills/`,
-read each SKILL.md frontmatter, and populate `registeredSkills` with every skill name.
-Set `registeredSkillCount` to match. This is the full registry rebuild that `/do`'s
-Step 0 defers to.
+**Skill registry rebuild:** During setup, register all built-in skills from the
+Citadel plugin plus any custom skills in the project's `.claude/skills/` directory.
+Populate `registeredSkills` with every skill name and set `registeredSkillCount`
+to match. This is the full registry rebuild that `/do`'s Step 0 defers to.
 
 **Dependency pattern suggestions:** After detecting the stack, read `package.json`
 and check for common libraries that have known anti-patterns:
@@ -201,19 +184,10 @@ If CLAUDE.md ALREADY exists:
    reference lines. NEVER overwrite or delete existing content.
 4. If already present: skip, don't duplicate
 
-**`.claude/settings.json` — Merge Hooks, Never Replace:**
-
-If `.claude/settings.json` does NOT exist, write Citadel's hook configuration normally.
-
-If `.claude/settings.json` ALREADY exists:
-1. Read and parse the existing JSON
-2. For each Citadel hook (PreToolUse, PostToolUse, etc.):
-   a. If the lifecycle event has no existing hooks → add Citadel's hooks
-   b. If the lifecycle event already has hooks → append Citadel's hooks to the
-      existing array (check for duplicates by comparing command strings first)
-   c. NEVER replace or remove existing hooks
-3. Write back the merged configuration
-4. Log: "Merged {N} Citadel hooks into existing settings.json (preserved {M} existing hooks)"
+**Hooks:** Citadel's hooks are managed by the plugin and fire automatically.
+No per-project hook configuration is needed. The plugin's `hooks/hooks.json`
+defines all lifecycle hooks (protect-files, post-edit typecheck, circuit breaker,
+quality gate, intake scanner, init-project, pre-compact, restore-compact).
 
 ### Step 3: DEMONSTRATE (run one real task)
 

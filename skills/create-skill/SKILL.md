@@ -50,7 +50,9 @@ maintain is a liability, not an asset.
 - The user wants to modify an existing skill (use direct editing instead)
 
 **What this skill produces:**
-- A complete `.claude/skills/{name}/SKILL.md` file
+- A complete `.claude/skills/{name}/SKILL.md` file in the project's directory
+  (custom skills live in the project, separate from Citadel's built-in skills)
+  (custom skills live in the project, separate from Citadel's built-in skills)
 - A tested, working skill that has been validated on a real target
 - A user who understands how to invoke and modify their new skill
 

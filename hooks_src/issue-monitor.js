@@ -12,7 +12,9 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const STATE_FILE = path.join(__dirname, '..', 'issue-monitor-state.json');
+const PROJECT_ROOT = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+const CITADEL_DIR = path.join(PROJECT_ROOT, '.citadel');
+const STATE_FILE = path.join(CITADEL_DIR, 'issue-monitor-state.json');
 
 function getGhPath() {
   const windowsPath = '/c/Program Files/GitHub CLI/gh.exe';
@@ -33,6 +35,8 @@ function loadState() {
 }
 
 function saveState(state) {
+  const dir = path.dirname(STATE_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
 }
 
