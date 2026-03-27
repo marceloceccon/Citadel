@@ -1,29 +1,13 @@
-# Citadel
+<img src="assets/citadel-hero.svg" width="100%" alt="Citadel — The Operating System for Autonomous Engineering" />
 
 <div align="center">
-
-### The Operating System for Autonomous Engineering
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
-[![Interactive Demo](https://img.shields.io/badge/Demo-Try%20the%20Router-00d2ff.svg)](https://sethgammon.github.io/Citadel/)
+[![Interactive Demo](https://img.shields.io/badge/▶_Try_the_Router-00d2ff.svg)](https://sethgammon.github.io/Citadel/)
 
-Citadel turns Claude Code into a multi-agent engineering factory: durable state, intelligent routing, parallel execution, and safety guardrails for autonomous coding campaigns that outlast any single session.
-
-> *Autonomous engineering needs better infrastructure, not just better reasoning.*
-
-33 skills &nbsp;·&nbsp; 4 autonomous agents &nbsp;·&nbsp; 14 lifecycle hooks &nbsp;·&nbsp; campaign persistence &nbsp;·&nbsp; governance audit log
-
-</div>
-
-<br>
-
-<img src="assets/routing-flow.svg" width="100%" alt="Citadel intent router — animated routing flow from input to tier to tool" />
-
-<div align="center">
-
-**[▶ Try the Interactive Demo →](https://sethgammon.github.io/Citadel/)**
+*Autonomous engineering needs better infrastructure, not just better reasoning.*
 
 </div>
 
