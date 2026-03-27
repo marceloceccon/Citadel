@@ -287,6 +287,7 @@
 
     /* ─── Result panel — folds out downward from search bar ─── */
     .result-panel {
+      display: none;
       background: var(--surface); border: 1.5px solid var(--border);
       border-radius: 14px; overflow: hidden;
       clip-path: inset(0 0 100% 0 round 14px);
@@ -543,6 +544,7 @@
     /* ─── Stats bar ─── */
     .stat-bar {
       width: 100%; max-width: 1100px;
+      margin: 0 auto;
       display: grid; grid-template-columns: repeat(4, 1fr);
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
@@ -811,19 +813,6 @@
       border-color: var(--cyan);
     }
 
-    /* ─── Generator tooltips ─── */
-    .gen-tooltip {
-      position: absolute; bottom: calc(100% + 8px); left: 50%;
-      transform: translateX(-50%);
-      font-size: 11px; color: var(--muted);
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 6px; padding: 5px 10px; white-space: nowrap;
-      font-family: 'SF Mono', monospace;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.15s; z-index: 10;
-    }
-    .gen-btn:hover .gen-tooltip { opacity: 1; }
-
     /* ─── Stat captions ─── */
     .stat-caption {
       font-size: 11px; color: var(--dim);
@@ -1031,6 +1020,9 @@
       .how-section { grid-template-columns: 1fr; padding: 32px 16px 40px; }
       .stat-bar { grid-template-columns: repeat(2, 1fr); }
       .stat { border-bottom: 1px solid var(--border); }
+      .stat:nth-child(even) { border-right: none; }
+      .stat:nth-last-child(-n+2) { border-bottom: none; }
+      .nav-badge { display: none; }
       .classification { grid-template-columns: repeat(2, 1fr); }
       /* Cascade mobile */
       .cascade-section { padding: 32px 16px 0; }
@@ -1044,6 +1036,11 @@
       .fork-branches { flex-direction: column; }
       .fork-or-divider { display: block; }
     }
+    /* ─── Narrow mobile: hide star to prevent nav overflow ─── */
+    @media (max-width: 540px) {
+      .nav-star { display: none; }
+    }
+
     /* ─── prefers-reduced-motion ─── */
     @media (prefers-reduced-motion: reduce) {
       .tier-row, .output-section, .result-panel,
@@ -1108,27 +1105,27 @@
     <!-- Generator buttons -->
     <div class="generators">
       <button class="gen-btn" style="--gc:var(--green)" onclick="generate('instant')">
-        <span class="gen-tooltip">~0 tokens · &lt;1ms</span>
         <span class="gen-icon">⚡</span>
         <div class="gen-name">Instant</div>
+        <div class="gen-meta">~0 tokens · &lt;1ms</div>
         <div class="gen-again">try another →</div>
       </button>
       <button class="gen-btn" style="--gc:var(--cyan)" onclick="generate('skill')">
-        <span class="gen-tooltip">~0 tokens · &lt;10ms</span>
         <span class="gen-icon">◆</span>
         <div class="gen-name">Skill</div>
+        <div class="gen-meta">~0 tokens · &lt;10ms</div>
         <div class="gen-again">try another →</div>
       </button>
       <button class="gen-btn" style="--gc:var(--orange)" onclick="generate('campaign')">
-        <span class="gen-tooltip">~500 tokens · Archon</span>
         <span class="gen-icon">⬡</span>
         <div class="gen-name">Campaign</div>
+        <div class="gen-meta">~500 tokens · Archon</div>
         <div class="gen-again">try another →</div>
       </button>
       <button class="gen-btn" style="--gc:var(--purple)" onclick="generate('fleet')">
-        <span class="gen-tooltip">~500 tokens · parallel</span>
         <span class="gen-icon">⬢</span>
         <div class="gen-name">Fleet</div>
+        <div class="gen-meta">~500 tokens · parallel</div>
         <div class="gen-again">try another →</div>
       </button>
     </div>
@@ -1457,6 +1454,25 @@
     </div>
   </div>
 
+  <button class="up-cue" onclick="goToScreen(0)" aria-label="Back to top" title="Back to top">
+    <svg width="22" height="13" viewBox="0 0 22 13" fill="none">
+      <path d="M1 11.5L11 2.5L21 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <footer>
+    <span>Citadel — Agent Orchestration for Claude Code &nbsp;·&nbsp; <a href="https://repo-explainer.com/SethGammon/Citadel/">Architecture overview</a></span>
+    <span>
+      <a id="footer-star" href="https://github.com/SethGammon/Citadel">★ Star on GitHub</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/SethGammon/Citadel/blob/main/LICENSE">MIT License</a>
+    </span>
+  </footer>
+  </div><!-- /screen-2 -->
+  </div><!-- /screens-inner -->
+  </div><!-- /page-wrap -->
+
+  <!-- Panels — outside #screens-inner so position:fixed is viewport-relative -->
   <!-- Panel backdrop -->
   <div class="panel-backdrop" id="panel-backdrop" onclick="closePanel()"></div>
 
@@ -1630,24 +1646,6 @@
     </div>
   </div>
 
-  <button class="up-cue" onclick="goToScreen(0)" aria-label="Back to top" title="Back to top">
-    <svg width="22" height="13" viewBox="0 0 22 13" fill="none">
-      <path d="M1 11.5L11 2.5L21 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
-
-  <footer>
-    <span>Citadel — Agent Orchestration for Claude Code &nbsp;·&nbsp; <a href="https://repo-explainer.com/SethGammon/Citadel/">Architecture overview</a></span>
-    <span>
-      <a id="footer-star" href="https://github.com/SethGammon/Citadel">★ Star on GitHub</a>
-      &nbsp;·&nbsp;
-      <a href="https://github.com/SethGammon/Citadel/blob/main/LICENSE">MIT License</a>
-    </span>
-  </footer>
-  </div><!-- /screen-2 -->
-  </div><!-- /screens-inner -->
-  </div><!-- /page-wrap -->
-
   <!-- Scroll cue (fixed, outside sliding area) -->
   <button class="scroll-cue" id="scroll-cue" onclick="goToScreen(1)" aria-label="Scroll to learn more">
     <svg width="22" height="13" viewBox="0 0 22 13" fill="none">
@@ -1802,7 +1800,8 @@
       document.body.classList.add('mode-result');
       if (currentScreen === 1) goToScreen(0);
       updateScrollCue();
-      panel.classList.add('visible');
+      panel.style.display = 'block';
+      requestAnimationFrame(() => panel.classList.add('visible'));
       resultCmd.textContent = `/do ${cmd}`;
       spinner.classList.add('active');
       timerEl.textContent = '';
@@ -1916,7 +1915,7 @@
         const tierMaxR = result.tier === 0 ? 120 : result.tier === 2 ? 220 : 500;
         const tierSpeed = result.tier === 0 ? 6 : result.tier === 2 ? 7 : 9;
         const tierColor = result.color;
-        fireTierPulse(px, py, tierMaxR, tierSpeed, tierColor);
+        if (window.fireTierPulse) window.fireTierPulse(px, py, tierMaxR, tierSpeed, tierColor);
       }
 
       // History
@@ -1946,8 +1945,11 @@
     }
 
     function resetDemo() {
+      const panel = document.getElementById('result-panel');
       document.body.classList.remove('mode-result');
-      document.getElementById('result-panel').classList.remove('visible');
+      panel.classList.remove('visible');
+      // Re-hide from layout after clip-path out-animation completes (700ms)
+      setTimeout(() => { panel.style.display = ''; }, 750);
       input.value = '';
       histIdx = -1;
       updateLivePreview('');
