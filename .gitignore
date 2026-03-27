@@ -44,3 +44,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Local planning notes (roadmaps, drafts — not for public repo)
+.planning/roadmap/

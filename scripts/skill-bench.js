@@ -12,12 +12,13 @@
  *   Execute (--execute): runs scenarios against the real claude CLI.
  *
  * Usage:
- *   node scripts/skill-bench.js                       # static validate all
- *   node scripts/skill-bench.js --execute             # run against claude
- *   node scripts/skill-bench.js --skill dashboard     # filter by skill name
- *   node scripts/skill-bench.js --tag fringe          # filter by tag
- *   node scripts/skill-bench.js --list                # list scenarios, no run
- *   node scripts/skill-bench.js --json                # machine-readable output
+ *   node scripts/skill-bench.js                            # static validate all
+ *   node scripts/skill-bench.js --execute                  # run against claude
+ *   node scripts/skill-bench.js --execute --verify-hooks   # also assert hooks fired
+ *   node scripts/skill-bench.js --skill dashboard          # filter by skill name
+ *   node scripts/skill-bench.js --tag fringe               # filter by tag
+ *   node scripts/skill-bench.js --list                     # list scenarios, no run
+ *   node scripts/skill-bench.js --json                     # machine-readable output
  *
  * Scenario files live at: skills/{skill}/__benchmarks__/{scenario}.md
  *
@@ -39,10 +40,11 @@ const RESULTS_DIR   = path.join(PLUGIN_ROOT, '.planning', 'benchmark-results');
 
 // ── CLI args ─────────────────────────────────────────────────────────────────
 
-const args         = process.argv.slice(2);
-const EXECUTE_MODE = args.includes('--execute');
-const LIST_MODE    = args.includes('--list');
-const JSON_MODE    = args.includes('--json');
+const args          = process.argv.slice(2);
+const EXECUTE_MODE  = args.includes('--execute');
+const LIST_MODE     = args.includes('--list');
+const JSON_MODE     = args.includes('--json');
+const VERIFY_HOOKS  = args.includes('--verify-hooks'); // install hooks + assert telemetry grew
 function getArgValue(flag) {
   // --flag=value  OR  --flag value (next token, only if it doesn't start with --)
   const eq = args.find(a => a.startsWith(flag + '='));
@@ -438,6 +440,7 @@ const STATES = {
 
 /**
  * Set up a temp project directory with the named state.
+ * If VERIFY_HOOKS is set, also installs Citadel hooks and inits .planning/.
  */
 function setupProjectState(state) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'citadel-bench-'));
@@ -448,7 +451,49 @@ function setupProjectState(state) {
     console.warn(`  WARN: Unknown state "${state}" — using clean state`);
   }
 
+  if (VERIFY_HOOKS) {
+    try {
+      execFileSync('node', [path.join(PLUGIN_ROOT, 'scripts', 'install-hooks.js'), tmpDir], {
+        encoding: 'utf8', timeout: 10000, stdio: 'pipe',
+      });
+      const { spawnSync } = require('child_process');
+      spawnSync('node', [path.join(PLUGIN_ROOT, 'hooks_src', 'init-project.js')], {
+        cwd: tmpDir,
+        env: { ...process.env, CLAUDE_PROJECT_DIR: tmpDir, CLAUDE_PLUGIN_DATA: path.join(tmpDir, '.claude') },
+        encoding: 'utf8', timeout: 10000,
+      });
+    } catch { /* best-effort — don't fail scenario setup */ }
+  }
+
   return tmpDir;
+}
+
+/**
+ * Snapshot telemetry line counts before execution (used with --verify-hooks).
+ */
+function snapshotTelemetry(tmpDir) {
+  const read = (rel) => {
+    const full = path.join(tmpDir, rel);
+    if (!fs.existsSync(full)) return 0;
+    return fs.readFileSync(full, 'utf8').split('\n').filter(Boolean).length;
+  };
+  return {
+    timing: read('.planning/telemetry/hook-timing.jsonl'),
+    audit:  read('.planning/telemetry/audit.jsonl'),
+    errors: read('.planning/telemetry/hook-errors.log'),
+  };
+}
+
+/**
+ * Assert hooks fired by comparing telemetry before/after.
+ * Returns array of hook assertion strings that failed, or empty if all pass.
+ */
+function assertHooksFired(tmpDir, before) {
+  const after = snapshotTelemetry(tmpDir);
+  const failures = [];
+  if (after.timing <= before.timing) failures.push('hook-timing.jsonl did not grow (hooks may not have fired)');
+  if (after.errors > before.errors)  failures.push(`${after.errors - before.errors} new hook error(s) — check hook-errors.log`);
+  return failures;
 }
 
 // ── Claude CLI detection ──────────────────────────────────────────────────────
@@ -675,6 +720,7 @@ function main() {
       // Execute mode: set up state, run, assert
       try {
         tmpDir = setupProjectState(scenario.state);
+        const telemetryBefore = VERIFY_HOOKS ? snapshotTelemetry(tmpDir) : null;
         const execResult = executeScenario(scenario, claudeCmd, tmpDir);
 
         if (execResult.timedOut) {
@@ -699,6 +745,15 @@ function main() {
           };
         } else {
           const assertionResults = runAssertions(scenario, execResult.output);
+
+          // Hook telemetry assertions (--verify-hooks mode)
+          if (VERIFY_HOOKS && telemetryBefore) {
+            const hookFailures = assertHooksFired(tmpDir, telemetryBefore);
+            for (const msg of hookFailures) {
+              assertionResults.push({ assertion: `hooks: ${msg}`, passed: false, type: 'hooks' });
+            }
+          }
+
           const allPass = assertionResults.every(a => a.passed);
           result = {
             scenario: scenario.name,
