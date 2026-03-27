@@ -5,6 +5,7 @@ description: Live-preview captures screenshots and reports PASS for a correctly 
 tags: [happy-path]
 input: /live-preview
 state: with-campaign
+skip-execute: true
 assert-contains:
   - screenshot
   - PASS

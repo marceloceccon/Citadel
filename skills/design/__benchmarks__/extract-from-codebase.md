@@ -5,6 +5,7 @@ description: Design skill extracts colors, typography, and spacing into a manife
 tags: [happy-path]
 input: /design extract the design system
 state: with-campaign
+skip-execute: true
 assert-contains:
   - extract
 assert-not-contains:

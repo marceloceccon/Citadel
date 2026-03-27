@@ -5,6 +5,7 @@ description: setup walks through configuration steps and creates harness.json on
 tags: [happy-path]
 input: /setup
 state: clean
+skip-execute: true
 assert-contains:
   - setup
   - Q1

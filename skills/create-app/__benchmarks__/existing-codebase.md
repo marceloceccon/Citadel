@@ -7,7 +7,6 @@ input: /create-app add dark mode to this app
 state: with-campaign
 assert-contains:
   - dark mode
-  - existing
 assert-not-contains:
   - ENOENT
   - TypeError

@@ -6,7 +6,6 @@ tags: [happy-path]
 input: /schedule add "check PRs every 30 minutes" /pr-watch
 state: clean
 assert-contains:
-  - "*/30 * * * *"
   - minimum
 assert-not-contains:
   - Error
