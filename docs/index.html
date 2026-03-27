@@ -1730,7 +1730,7 @@
         input.value = el.dataset.cmd;
         updateLivePreview(el.dataset.cmd);
         animateRoute(el.dataset.cmd);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        goToScreen(0);
       });
     });
 
@@ -1850,6 +1850,7 @@
       let dots = null;
       const STRIDE = 7;
       let mx = -9999, my = -9999, raf = null, lastTime = 0;
+      const pulses = []; // { x, y, r, maxR, speed, type: 'burst'|'ripple', age }
       const FRAME_MS = 1000 / 60;
 
       function resize() {
@@ -1889,6 +1890,38 @@
           const disp = Math.sqrt((x-ox)*(x-ox)+(y-oy)*(y-oy));
           dots[b+6] = Math.min(1, disp / (REPEL_DIST * 0.35));
         }
+
+        // Update pulses and apply to dots
+        for (let p = pulses.length - 1; p >= 0; p--) {
+          const pulse = pulses[p];
+          pulse.r += pulse.speed * dt;
+          pulse.age += dt;
+          if (pulse.r > pulse.maxR) { pulses.splice(p, 1); continue; }
+          const fade = 1 - pulse.r / pulse.maxR;
+          for (let i = 0; i < n; i++) {
+            const b = i * STRIDE;
+            const ox = dots[b], oy = dots[b+1];
+            const px = ox - pulse.x, py = oy - pulse.y;
+            const dist = Math.sqrt(px*px + py*py);
+            if (pulse.type === 'burst') {
+              // Radial push: strongest near the expanding front
+              const front = Math.abs(dist - pulse.r);
+              if (front < 40) {
+                const force = (1 - front/40) * 12 * fade;
+                const ang = dist || 1;
+                dots[b+4] += (px/ang)*force; dots[b+5] += (py/ang)*force;
+              }
+            } else {
+              // Ripple: ring of light (heat boost), no displacement
+              const front = Math.abs(dist - pulse.r);
+              if (front < 28) {
+                const boost = (1 - front/28) * fade * 0.8;
+                dots[b+6] = Math.min(1, dots[b+6] + boost);
+              }
+            }
+          }
+        }
+
         ctx.clearRect(0,0,W,H);
         ctx.beginPath(); ctx.fillStyle='rgba(30,38,50,0.72)';
         for (let i=0;i<n;i++) {
@@ -1910,6 +1943,15 @@
       resize();
       window.addEventListener('resize', resize);
       window.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+      window.addEventListener('click', e => {
+        if (e.target.closest('button, a, input, .panel-body')) return;
+        pulses.push({ x: e.clientX, y: e.clientY, r: 0, maxR: 200, speed: 8, type: 'burst', age: 0 });
+      });
+      window.addEventListener('contextmenu', e => {
+        if (e.target.closest('button, a, input, .panel-body')) return;
+        e.preventDefault();
+        pulses.push({ x: e.clientX, y: e.clientY, r: 0, maxR: 260, speed: 5, type: 'ripple', age: 0 });
+      });
       window.addEventListener('mouseleave', () => {
         mx=-9999; my=-9999;
         // zero velocities so dots glide home cleanly instead of oscillating
