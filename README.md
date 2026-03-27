@@ -1,14 +1,28 @@
 # Citadel — The Operating System for Autonomous Engineering
 
+<div align="center">
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
 
 Citadel turns Claude Code into a multi-agent engineering factory: durable state, intelligent routing, parallel execution, and safety guardrails for autonomous coding campaigns that outlast any single session.
 
-> Autonomous engineering needs better infrastructure, not just better reasoning.
+> *Autonomous engineering needs better infrastructure, not just better reasoning.*
 
-**33 skills | 4 autonomous agents | 14 lifecycle hook events | campaign persistence | fleet coordination | governance audit log**
+**33 skills · 4 autonomous agents · 14 lifecycle hook events · campaign persistence · fleet coordination · governance audit log**
+
+</div>
+
+<img src="assets/routing-flow.svg" width="100%" alt="Citadel intent router — animated routing flow from input to tier to tool" />
+
+<div align="center">
+
+**[▶ Try the Interactive Demo →](https://sethgammon.github.io/Citadel/)**
+
+</div>
+
+<br>
 
 <img src="assets/citadel-overview.svg" width="100%" alt="Citadel system overview — app creation pipeline and safety systems" />
 

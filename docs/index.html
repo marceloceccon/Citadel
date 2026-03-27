@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Citadel — Intent Router Demo</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --cyan: #00d2ff;
+      --blue: #58a6ff;
+      --green: #3fb950;
+      --orange: #f0883e;
+      --purple: #bc8cff;
+      --red: #ff7b72;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ─── Nav ─── */
+    nav {
+      width: 100%;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 40px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--surface);
+    }
+    .nav-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 2px;
+      text-decoration: none;
+    }
+    .nav-sep { color: var(--border); }
+    .nav-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-right { margin-left: auto; }
+    .nav-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      text-align: center;
+      padding: 60px 40px 40px;
+      max-width: 760px;
+    }
+    .hero-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #e6edf3 30%, #58a6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ─── Router playground ─── */
+    .playground {
+      width: 100%;
+      max-width: 900px;
+      padding: 0 20px 60px;
+    }
+
+    .input-area {
+      position: relative;
+      margin-bottom: 32px;
+    }
+    .input-prompt {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 15px;
+      color: var(--cyan);
+      pointer-events: none;
+    }
+    #cmd-input {
+      width: 100%;
+      padding: 18px 20px 18px 48px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #cmd-input:focus { border-color: var(--cyan); }
+    #cmd-input::placeholder { color: var(--muted); }
+
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .example-btn {
+      padding: 8px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .example-btn:hover {
+      border-color: var(--cyan);
+      color: var(--text);
+    }
+
+    /* ─── Result panel ─── */
+    .result-panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .result-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .result-command {
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 14px;
+      color: var(--blue);
+    }
+
+    /* ─── Tier cascade ─── */
+    .tier-cascade {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tier-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      opacity: 0.35;
+      transition: opacity 0.3s, border-color 0.3s, background 0.3s;
+      position: relative;
+    }
+    .tier-row.checking {
+      opacity: 0.75;
+    }
+    .tier-row.matched {
+      opacity: 1;
+      border-color: var(--match-color);
+      background: color-mix(in srgb, var(--match-color) 8%, var(--surface-2));
+    }
+    .tier-row.skipped {
+      opacity: 0.25;
+    }
+
+    .tier-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      border: 1px solid currentColor;
+    }
+    .tier-name {
+      font-size: 13px;
+      font-weight: 600;
+      flex: 1;
+    }
+    .tier-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .tier-status {
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ─── Output ─── */
+    .output-section {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .output-section.visible { opacity: 1; transform: translateY(0); }
+
+    .output-tool {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .output-tool-name {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+    }
+    .output-tool-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 360px;
+    }
+    .output-meta {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .meta-badge {
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .meta-badge.highlight {
+      border-color: var(--match-color);
+      color: var(--match-color);
+    }
+
+    /* ─── Stat bar ─── */
+    .stat-bar {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--cyan);
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ─── Spinner ─── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    .spinner.active { display: inline-block; }
+
+    /* ─── Pulse on tier ─── */
+    @keyframes tier-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 transparent; }
+      50% { box-shadow: 0 0 12px 2px var(--match-color); }
+    }
+    .tier-row.matched { animation: tier-pulse 1.5s ease-in-out; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="https://github.com/SethGammon/Citadel">CITADEL</a>
+    <span class="nav-sep">·</span>
+    <a class="nav-link" href="https://github.com/SethGammon/Citadel">GitHub</a>
+    <a class="nav-link" href="https://github.com/SethGammon/Citadel#quickstart">Quickstart</a>
+    <a class="nav-link" href="https://github.com/SethGammon/Citadel/blob/main/docs/SKILLS.md">Skills</a>
+    <a class="nav-link" href="https://github.com/SethGammon/Citadel/blob/main/docs/HOOKS.md">Hooks</a>
+    <span class="nav-right">
+      <span class="nav-badge">v2.1</span>
+    </span>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-label">Interactive Demo</div>
+    <h1>The /do Intent Router</h1>
+    <p>Type any engineering task below. Citadel classifies it across four tiers and dispatches it to the cheapest tool that can handle it — zero configuration required.</p>
+  </div>
+
+  <div class="playground">
+    <div class="input-area">
+      <span class="input-prompt">/do</span>
+      <input id="cmd-input" type="text" placeholder="describe what you want…" autocomplete="off" spellcheck="false" />
+    </div>
+
+    <div class="examples">
+      <button class="example-btn" data-cmd="fix the typo on line 42">fix the typo on line 42</button>
+      <button class="example-btn" data-cmd="review the auth module">review the auth module</button>
+      <button class="example-btn" data-cmd="write tests for the payment service">write tests for the payment service</button>
+      <button class="example-btn" data-cmd="build me a recipe app">build me a recipe app</button>
+      <button class="example-btn" data-cmd="why is the API returning 500">why is the API returning 500</button>
+      <button class="example-btn" data-cmd="overhaul all three services">overhaul all three services</button>
+      <button class="example-btn" data-cmd="document the API endpoints">document the API endpoints</button>
+      <button class="example-btn" data-cmd="refactor the auth middleware">refactor the auth middleware</button>
+    </div>
+
+    <div class="result-panel" id="result-panel">
+      <div class="result-header">
+        <span class="spinner" id="spinner"></span>
+        <span class="result-command" id="result-command"></span>
+      </div>
+
+      <div class="tier-cascade">
+        <div class="tier-row" id="tier0" style="--match-color: var(--green)">
+          <span class="tier-badge" style="color: var(--green)">TIER 0</span>
+          <span class="tier-name">Pattern Match</span>
+          <span class="tier-desc">Regex on raw input — fix typo, rename, commit, build, test</span>
+          <span class="tier-status" id="tier0-status"></span>
+        </div>
+        <div class="tier-row" id="tier1" style="--match-color: var(--blue)">
+          <span class="tier-badge" style="color: var(--blue)">TIER 1</span>
+          <span class="tier-name">Active State</span>
+          <span class="tier-desc">Active campaign or fleet session matches the request</span>
+          <span class="tier-status" id="tier1-status"></span>
+        </div>
+        <div class="tier-row" id="tier2" style="--match-color: var(--cyan)">
+          <span class="tier-badge" style="color: var(--cyan)">TIER 2</span>
+          <span class="tier-name">Keyword Match</span>
+          <span class="tier-desc">Installed skill keywords matched — review, test, debug, research…</span>
+          <span class="tier-status" id="tier2-status"></span>
+        </div>
+        <div class="tier-row" id="tier3" style="--match-color: var(--orange)">
+          <span class="tier-badge" style="color: var(--orange)">TIER 3</span>
+          <span class="tier-name">LLM Classifier</span>
+          <span class="tier-desc">6-dimension classification: scope, complexity, intent, persistence, parallel, taste</span>
+          <span class="tier-status" id="tier3-status"></span>
+        </div>
+      </div>
+
+      <div class="output-section" id="output-section">
+        <div class="output-tool">
+          <div class="output-tool-name" id="output-name"></div>
+          <div class="output-tool-desc" id="output-desc"></div>
+        </div>
+        <div class="output-meta" id="output-meta"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-bar">
+    <div class="stat">
+      <div class="stat-num">33</div>
+      <div class="stat-label">Skills</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Autonomous Agents</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">14</div>
+      <div class="stat-label">Hook Events</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">~0</div>
+      <div class="stat-label">Config Required</div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Citadel — Agent Orchestration for Claude Code</span>
+    <span>
+      <a href="https://github.com/SethGammon/Citadel">GitHub</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/SethGammon/Citadel/blob/main/LICENSE">MIT License</a>
+    </span>
+  </footer>
+
+  <script>
+    // ─── Routing logic ─────────────────────────────────────────────────────
+    const TIER0_PATTERNS = [
+      { re: /\b(fix|correct)\s+(the\s+)?typo\b/i, label: 'pattern: "fix typo"' },
+      { re: /\brename\s+\w+\s+to\b/i, label: 'pattern: "rename X to Y"' },
+      { re: /\b(commit|stage)\b/i, label: 'pattern: "commit"' },
+      { re: /\b(typecheck|type check|build)\b/i, label: 'pattern: "build/typecheck"' },
+      { re: /\b(status|continue|keep going)\b/i, label: 'pattern: "status/continue"' },
+      { re: /\bsetup\b/i, label: 'pattern: "setup"' },
+    ];
+
+    const TIER2_KEYWORDS = [
+      { re: /\b(review|code review)\b/i, skill: '/review', desc: '5-pass structured code review: correctness, security, performance, readability, consistency', tokens: '~0', latency: '<10ms' },
+      { re: /\b(test|tests|write tests|generate tests)\b/i, skill: '/test-gen', desc: 'Generates tests using your actual framework and patterns. Happy path, edge cases, error paths.', tokens: '~0', latency: '<10ms' },
+      { re: /\b(document|docs|docstring|readme)\b/i, skill: '/doc-gen', desc: 'Three modes: function-level, module-level, or API reference. Matches your doc style.', tokens: '~0', latency: '<10ms' },
+      { re: /\b(refactor|extract|split file)\b/i, skill: '/refactor', desc: 'Safe multi-file refactoring. Typechecks before and after. Reverts on failure.', tokens: '~0', latency: '<10ms' },
+      { re: /\b(scaffold|new module|new component|bootstrap)\b/i, skill: '/scaffold', desc: 'Project-aware file generation. Reads your conventions from exemplars before generating.', tokens: '~0', latency: '<10ms' },
+      { re: /\b(research|investigate|look into|find out)\b/i, skill: '/research', desc: 'Structured investigation: formulates query, searches sources, writes report to .planning/research/.', tokens: '~0', latency: '<10ms' },
+      { re: /\b(debug|root cause|diagnose|why is|investigate bug)\b/i, skill: '/systematic-debugging', desc: '4-phase root cause analysis: observe → hypothesize → verify → fix. Won\'t skip diagnosis.', tokens: '~0', latency: '<10ms' },
+      { re: /\b(prd|requirements|spec|plan an app)\b/i, skill: '/prd', desc: 'Generates a Product Requirements Document from a natural language description.', tokens: '~0', latency: '<10ms' },
+      { re: /\b(architect|architecture|file structure|plan the build)\b/i, skill: '/architect', desc: 'Converts a PRD into file tree, build phases, and machine-verifiable end conditions.', tokens: '~0', latency: '<10ms' },
+    ];
+
+    const TIER3_RULES = [
+      { re: /\b(create|build|make|generate)\b.*\b(app|application|tool|service|site|website)\b/i,
+        intent: 'create', complexity: 4, tool: '/archon', desc: 'Multi-session campaign executor. Decomposes into phases, delegates to specialists, enforces quality gates. Self-corrects every 2 phases.', tokens: '~500', latency: '~2s', persist: true },
+      { re: /\b(add|implement|integrate)\b/i,
+        intent: 'add feature', complexity: 3, tool: '/create-app', desc: 'Feature addition mode (Tier 5). Reads existing codebase conventions, adds the feature without breaking what\'s there.', tokens: '~500', latency: '~2s', persist: false },
+      { re: /\b(overhaul|redesign|rewrite|rearchitect|rebuild)\b/i,
+        intent: 'redesign', complexity: 5, tool: '/fleet', desc: 'Parallel campaign coordinator. Runs 2-3 agents in isolated git worktrees per wave. Discovery sharing between waves.', tokens: '~500', latency: '~2s', persist: true },
+    ];
+
+    function route(cmd) {
+      // Tier 0
+      for (const p of TIER0_PATTERNS) {
+        if (p.re.test(cmd)) {
+          return { tier: 0, matchLabel: p.label, tool: 'Direct Edit', desc: 'Claude performs the change inline — no skill loaded, no orchestrator spawned. Fastest possible path.', tokens: '0', latency: '<1ms', color: 'var(--green)' };
+        }
+      }
+
+      // Tier 1 — always misses in demo (no live session state)
+      // skip
+
+      // Tier 2
+      for (const k of TIER2_KEYWORDS) {
+        if (k.re.test(cmd)) {
+          return { tier: 2, matchLabel: `keyword hit`, tool: k.skill, desc: k.desc, tokens: k.tokens, latency: k.latency, color: 'var(--cyan)' };
+        }
+      }
+
+      // Tier 3
+      for (const r of TIER3_RULES) {
+        if (r.re.test(cmd)) {
+          return { tier: 3, matchLabel: `intent: ${r.intent} · complexity: ${r.complexity}`, tool: r.tool, desc: r.desc, tokens: r.tokens, latency: r.latency, color: 'var(--orange)', persist: r.persist };
+        }
+      }
+
+      // Fallback to Marshal
+      return { tier: 3, matchLabel: 'confidence < 0.7 → safe default', tool: '/marshal', desc: 'Single-session meta-orchestrator. Takes any direction and executes it end-to-end, spawning sub-agents as needed.', tokens: '~500', latency: '~2s', color: 'var(--purple)' };
+    }
+
+    // ─── Animation ─────────────────────────────────────────────────────────
+    const TIER_IDS = ['tier0', 'tier1', 'tier2', 'tier3'];
+
+    async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function resetTiers() {
+      for (const id of TIER_IDS) {
+        const el = document.getElementById(id);
+        el.className = 'tier-row';
+        el.querySelector('.tier-status').textContent = '';
+      }
+      document.getElementById('output-section').classList.remove('visible');
+    }
+
+    async function animateRoute(cmd) {
+      resetTiers();
+      const panel = document.getElementById('result-panel');
+      const spinner = document.getElementById('spinner');
+      const resultCmd = document.getElementById('result-command');
+
+      panel.classList.add('visible');
+      resultCmd.textContent = `/do ${cmd}`;
+      spinner.classList.add('active');
+
+      const result = route(cmd);
+
+      // Animate each tier in sequence
+      for (let i = 0; i <= 3; i++) {
+        const tierEl = document.getElementById(`tier${i}`);
+        const statusEl = document.getElementById(`tier${i}-status`);
+
+        // Skip tier 1 (no live session state)
+        if (i === 1) {
+          await sleep(120);
+          tierEl.classList.add('skipped');
+          statusEl.textContent = '— (no active session)';
+          statusEl.style.color = 'var(--muted)';
+          continue;
+        }
+
+        tierEl.classList.add('checking');
+        statusEl.textContent = 'checking…';
+        statusEl.style.color = 'var(--muted)';
+        await sleep(350);
+
+        if (i === result.tier) {
+          // This tier matched
+          tierEl.classList.remove('checking');
+          tierEl.classList.add('matched');
+          statusEl.textContent = `✓  ${result.matchLabel}`;
+          statusEl.style.color = result.color;
+          // Skip remaining tiers
+          for (let j = i + 1; j <= 3; j++) {
+            const rest = document.getElementById(`tier${j}`);
+            rest.classList.add('skipped');
+            document.getElementById(`tier${j}-status`).textContent = '— skipped';
+            document.getElementById(`tier${j}-status`).style.color = 'var(--muted)';
+          }
+          break;
+        } else {
+          tierEl.classList.remove('checking');
+          tierEl.classList.add('skipped');
+          statusEl.textContent = '— no match';
+          statusEl.style.color = 'var(--muted)';
+        }
+      }
+
+      // Show output
+      spinner.classList.remove('active');
+      await sleep(200);
+
+      const outName = document.getElementById('output-name');
+      const outDesc = document.getElementById('output-desc');
+      const outMeta = document.getElementById('output-meta');
+      const outSection = document.getElementById('output-section');
+
+      outName.textContent = result.tool;
+      outName.style.color = result.color;
+      outDesc.textContent = result.desc;
+
+      outMeta.innerHTML = `
+        <span class="meta-badge highlight" style="--match-color: ${result.color}">Tier ${result.tier}</span>
+        <span class="meta-badge">~${result.tokens} classify tokens</span>
+        <span class="meta-badge">${result.latency} to dispatch</span>
+        ${result.persist ? '<span class="meta-badge">multi-session</span>' : ''}
+      `;
+
+      outSection.classList.add('visible');
+    }
+
+    // ─── Event handlers ─────────────────────────────────────────────────────
+    const input = document.getElementById('cmd-input');
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && input.value.trim()) {
+        animateRoute(input.value.trim());
+      }
+    });
+
+    document.querySelectorAll('.example-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.dataset.cmd;
+        input.value = cmd;
+        animateRoute(cmd);
+      });
+    });
+
+    // Auto-demo on load
+    setTimeout(() => animateRoute('review the auth module'), 800);
+  </script>
+</body>
+</html>

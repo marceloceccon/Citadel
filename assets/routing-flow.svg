@@ -1,0 +1,255 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500">
+  <defs>
+    <linearGradient id="rf-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="rf-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d2ff"/>
+      <stop offset="100%" stop-color="#3a7bd5"/>
+    </linearGradient>
+    <filter id="rf-glow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="rf-glow-soft">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Animation paths: start at end of command column, end at end of output column -->
+    <path id="rf-p1" d="M 415 148 H 1140"/>
+    <path id="rf-p2" d="M 415 230 H 1140"/>
+    <path id="rf-p3" d="M 415 312 H 1140"/>
+    <path id="rf-p4" d="M 415 394 H 1140"/>
+
+    <style>
+      @keyframes rf-pulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+      }
+      @keyframes rf-border-pulse-green {
+        0%, 100% { stroke-opacity: 0.5; }
+        50% { stroke-opacity: 1; }
+      }
+    </style>
+  </defs>
+
+  <!-- Background + border -->
+  <rect width="1200" height="500" rx="14" fill="url(#rf-bg)"/>
+  <rect x="0.75" y="0.75" width="1198.5" height="498.5" rx="14" fill="none" stroke="#00d2ff" stroke-width="1.5" stroke-opacity="0.25"/>
+
+  <!-- Top accent bar -->
+  <rect x="30" y="11" width="1140" height="2.5" rx="1.25" fill="url(#rf-cyan)" opacity="0.7"/>
+
+  <!-- ═══ HEADER ═══ -->
+  <text x="60" y="50" font-family="'Segoe UI',system-ui,sans-serif" font-size="22" font-weight="700" fill="#e6edf3" letter-spacing="4">CITADEL</text>
+  <text x="178" y="50" font-family="'SF Mono','Cascadia Code',monospace" font-size="11" fill="#00d2ff" opacity="0.7" letter-spacing="2">/ INTENT ROUTER</text>
+  <text x="1140" y="50" font-family="'Segoe UI',system-ui,sans-serif" font-size="12" fill="#8b949e" text-anchor="end" font-style="italic">Say what you want. /do routes it.</text>
+
+  <!-- Header divider -->
+  <line x1="30" y1="66" x2="1170" y2="66" stroke="#21262d" stroke-width="1.5"/>
+
+  <!-- Column headers -->
+  <text x="45" y="88" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#8b949e" letter-spacing="2">YOU TYPE</text>
+  <text x="490" y="88" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#8b949e" letter-spacing="2" text-anchor="middle">TIER MATCHED</text>
+  <text x="865" y="88" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#8b949e" letter-spacing="2" text-anchor="middle">CITADEL RUNS</text>
+
+  <!-- Column separator lines -->
+  <line x1="408" y1="72" x2="408" y2="455" stroke="#21262d" stroke-width="1"/>
+  <line x1="572" y1="72" x2="572" y2="455" stroke="#21262d" stroke-width="1"/>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ROW 1: "fix the typo on line 42" → TIER 0 → Direct Edit -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="30" y="103" width="1140" height="90" rx="8" fill="#21262d" fill-opacity="0.5"/>
+
+  <!-- Command text -->
+  <text x="48" y="138" font-family="'SF Mono','Cascadia Code',monospace" font-size="14" fill="#79c0ff">"fix the typo on line 42"</text>
+  <text x="48" y="160" font-family="'SF Mono','Cascadia Code',monospace" font-size="10" fill="#3fb950" opacity="0.8">pattern: "fix typo in X"</text>
+  <text x="48" y="180" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e" opacity="0.7">~0 tokens · &lt;1ms</text>
+
+  <!-- Connector arrow → Tier -->
+  <line x1="408" y1="148" x2="426" y2="148" stroke="#3fb950" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="422,144 430,148 422,152" fill="#3fb950" opacity="0.7"/>
+
+  <!-- Tier 0 box -->
+  <rect x="432" y="124" width="128" height="48" rx="8" fill="#1a2b1a" stroke="#3fb950" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="496" y="143" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#3fb950" text-anchor="middle" font-weight="700" letter-spacing="2">TIER 0</text>
+  <text x="496" y="159" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#3fb950" text-anchor="middle" opacity="0.75">Pattern Match</text>
+
+  <!-- Connector → Output -->
+  <line x1="560" y1="148" x2="578" y2="148" stroke="#3fb950" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="574,144 582,148 574,152" fill="#3fb950" opacity="0.7"/>
+
+  <!-- Output box -->
+  <rect x="586" y="119" width="210" height="58" rx="8" fill="#1a2b1a" stroke="#3fb950" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="605" y="142" font-family="'Segoe UI',system-ui,sans-serif" font-size="14" fill="#3fb950" font-weight="600">✎  Direct Edit</text>
+  <text x="605" y="161" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#3fb950" opacity="0.65">zero overhead · no skill loaded</text>
+
+  <!-- Row 1 animated particle (8s cycle, active 0–2s) -->
+  <circle r="5" fill="#3fb950" filter="url(#rf-glow)" opacity="0">
+    <animateMotion dur="8s" repeatCount="indefinite" begin="0s" calcMode="linear"
+      keyTimes="0;0.005;0.23;0.25;0.25;1" keyPoints="0;0;1;1;0;0"/>
+    <animate attributeName="opacity" values="0;1;1;1;0;0" keyTimes="0;0.005;0.22;0.24;0.25;1"
+      dur="8s" repeatCount="indefinite" begin="0s"/>
+  </circle>
+  <!-- Glow ring on output when particle arrives (at ~23% of 8s = 1.84s) -->
+  <circle cx="691" cy="148" r="32" fill="none" stroke="#3fb950" stroke-width="1.5" opacity="0">
+    <animate attributeName="opacity" values="0;0;0;0.5;0.5;0" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="0s"/>
+    <animate attributeName="r" values="32;32;32;32;42;52" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="0s"/>
+  </circle>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ROW 2: "review the auth module" → TIER 2 → /review -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="30" y="197" width="1140" height="90" rx="8" fill="#21262d" fill-opacity="0.3"/>
+
+  <text x="48" y="230" font-family="'SF Mono','Cascadia Code',monospace" font-size="14" fill="#79c0ff">"review the auth module"</text>
+  <text x="48" y="252" font-family="'SF Mono','Cascadia Code',monospace" font-size="10" fill="#58a6ff" opacity="0.8">keyword: "review"</text>
+  <text x="48" y="272" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e" opacity="0.7">~0 tokens · keyword table hit</text>
+
+  <line x1="408" y1="230" x2="426" y2="230" stroke="#58a6ff" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="422,226 430,230 422,234" fill="#58a6ff" opacity="0.7"/>
+
+  <rect x="432" y="206" width="128" height="48" rx="8" fill="#1a1f2e" stroke="#58a6ff" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="496" y="225" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#58a6ff" text-anchor="middle" font-weight="700" letter-spacing="2">TIER 2</text>
+  <text x="496" y="241" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#58a6ff" text-anchor="middle" opacity="0.75">Keyword Match</text>
+
+  <line x1="560" y1="230" x2="578" y2="230" stroke="#58a6ff" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="574,226 582,230 574,234" fill="#58a6ff" opacity="0.7"/>
+
+  <rect x="586" y="201" width="210" height="58" rx="8" fill="#1a1f2e" stroke="#58a6ff" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="605" y="224" font-family="'Segoe UI',system-ui,sans-serif" font-size="14" fill="#58a6ff" font-weight="600">◆  /review</text>
+  <text x="605" y="243" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#58a6ff" opacity="0.65">5-pass structured code review</text>
+
+  <circle r="5" fill="#58a6ff" filter="url(#rf-glow)" opacity="0">
+    <animateMotion dur="8s" repeatCount="indefinite" begin="2s" calcMode="linear"
+      keyTimes="0;0.005;0.23;0.25;0.25;1" keyPoints="0;0;1;1;0;0"/>
+    <animate attributeName="opacity" values="0;1;1;1;0;0" keyTimes="0;0.005;0.22;0.24;0.25;1"
+      dur="8s" repeatCount="indefinite" begin="2s"/>
+  </circle>
+  <circle cx="691" cy="230" r="32" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0">
+    <animate attributeName="opacity" values="0;0;0;0.5;0.5;0" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="2s"/>
+    <animate attributeName="r" values="32;32;32;32;42;52" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="2s"/>
+  </circle>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ROW 3: "build me a recipe app" → TIER 3 → /archon -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="30" y="291" width="1140" height="90" rx="8" fill="#21262d" fill-opacity="0.5"/>
+
+  <text x="48" y="316" font-family="'SF Mono','Cascadia Code',monospace" font-size="14" fill="#79c0ff">"build me a recipe app"</text>
+  <text x="48" y="338" font-family="'SF Mono','Cascadia Code',monospace" font-size="10" fill="#f0883e" opacity="0.8">intent: create · complexity: 4 · persist: true</text>
+  <text x="48" y="358" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e" opacity="0.7">~500 tokens · LLM classifier</text>
+
+  <line x1="408" y1="312" x2="426" y2="312" stroke="#f0883e" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="422,308 430,312 422,316" fill="#f0883e" opacity="0.7"/>
+
+  <rect x="432" y="288" width="128" height="48" rx="8" fill="#2b1f1a" stroke="#f0883e" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="496" y="307" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#f0883e" text-anchor="middle" font-weight="700" letter-spacing="2">TIER 3</text>
+  <text x="496" y="323" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#f0883e" text-anchor="middle" opacity="0.75">LLM Classifier</text>
+
+  <line x1="560" y1="312" x2="578" y2="312" stroke="#f0883e" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="574,308 582,312 574,316" fill="#f0883e" opacity="0.7"/>
+
+  <rect x="586" y="283" width="210" height="58" rx="8" fill="#2b1f1a" stroke="#f0883e" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="605" y="306" font-family="'Segoe UI',system-ui,sans-serif" font-size="14" fill="#f0883e" font-weight="600">⬡  /archon</text>
+  <text x="605" y="325" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#f0883e" opacity="0.65">multi-session campaign + phases</text>
+
+  <circle r="5" fill="#f0883e" filter="url(#rf-glow)" opacity="0">
+    <animateMotion dur="8s" repeatCount="indefinite" begin="4s" calcMode="linear"
+      keyTimes="0;0.005;0.23;0.25;0.25;1" keyPoints="0;0;1;1;0;0"/>
+    <animate attributeName="opacity" values="0;1;1;1;0;0" keyTimes="0;0.005;0.22;0.24;0.25;1"
+      dur="8s" repeatCount="indefinite" begin="4s"/>
+  </circle>
+  <circle cx="691" cy="312" r="32" fill="none" stroke="#f0883e" stroke-width="1.5" opacity="0">
+    <animate attributeName="opacity" values="0;0;0;0.5;0.5;0" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="4s"/>
+    <animate attributeName="r" values="32;32;32;32;42;52" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="4s"/>
+  </circle>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ROW 4: "overhaul all three services" → TIER 3 → /fleet -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="30" y="385" width="1140" height="90" rx="8" fill="#21262d" fill-opacity="0.3"/>
+
+  <text x="48" y="410" font-family="'SF Mono','Cascadia Code',monospace" font-size="14" fill="#79c0ff">"overhaul all three services"</text>
+  <text x="48" y="432" font-family="'SF Mono','Cascadia Code',monospace" font-size="10" fill="#bc8cff" opacity="0.8">intent: redesign · scope: platform · parallel: true</text>
+  <text x="48" y="452" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e" opacity="0.7">~500 tokens · LLM classifier</text>
+
+  <line x1="408" y1="412" x2="426" y2="412" stroke="#bc8cff" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="422,408 430,412 422,416" fill="#bc8cff" opacity="0.7"/>
+
+  <rect x="432" y="388" width="128" height="48" rx="8" fill="#221a2e" stroke="#bc8cff" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="496" y="407" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#bc8cff" text-anchor="middle" font-weight="700" letter-spacing="2">TIER 3</text>
+  <text x="496" y="423" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#bc8cff" text-anchor="middle" opacity="0.75">LLM Classifier</text>
+
+  <line x1="560" y1="412" x2="578" y2="412" stroke="#bc8cff" stroke-width="1.5" opacity="0.6" stroke-dasharray="3,3"/>
+  <polygon points="574,408 582,412 574,416" fill="#bc8cff" opacity="0.7"/>
+
+  <rect x="586" y="383" width="210" height="58" rx="8" fill="#221a2e" stroke="#bc8cff" stroke-width="1.5" stroke-opacity="0.85"/>
+  <text x="605" y="406" font-family="'Segoe UI',system-ui,sans-serif" font-size="14" fill="#bc8cff" font-weight="600">⬢  /fleet</text>
+  <text x="605" y="425" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#bc8cff" opacity="0.65">parallel agents · git worktrees</text>
+
+  <circle r="5" fill="#bc8cff" filter="url(#rf-glow)" opacity="0">
+    <animateMotion dur="8s" repeatCount="indefinite" begin="6s" calcMode="linear"
+      keyTimes="0;0.005;0.23;0.25;0.25;1" keyPoints="0;0;1;1;0;0"/>
+    <animate attributeName="opacity" values="0;1;1;1;0;0" keyTimes="0;0.005;0.22;0.24;0.25;1"
+      dur="8s" repeatCount="indefinite" begin="6s"/>
+  </circle>
+  <circle cx="691" cy="412" r="32" fill="none" stroke="#bc8cff" stroke-width="1.5" opacity="0">
+    <animate attributeName="opacity" values="0;0;0;0.5;0.5;0" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="6s"/>
+    <animate attributeName="r" values="32;32;32;32;42;52" keyTimes="0;0.20;0.21;0.23;0.25;0.28"
+      dur="8s" repeatCount="indefinite" begin="6s"/>
+  </circle>
+
+  <!-- ═══ RIGHT PANEL: additional skill outputs (faded) ═══ -->
+  <!-- These show what else is in the ecosystem -->
+  <text x="830" y="88" font-family="'Segoe UI',system-ui,sans-serif" font-size="10" fill="#8b949e" letter-spacing="1">ALSO ROUTES TO</text>
+
+  <!-- /marshal -->
+  <rect x="820" y="108" width="150" height="36" rx="6" fill="#21262d" fill-opacity="0.6" stroke="#30363d" stroke-width="1"/>
+  <text x="839" y="128" font-family="'Segoe UI',system-ui,sans-serif" font-size="11" fill="#e6edf3" opacity="0.6">⟳  /marshal</text>
+  <text x="839" y="139" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e">single-session orchestrator</text>
+
+  <!-- /test-gen -->
+  <rect x="984" y="108" width="150" height="36" rx="6" fill="#21262d" fill-opacity="0.6" stroke="#30363d" stroke-width="1"/>
+  <text x="1003" y="128" font-family="'Segoe UI',system-ui,sans-serif" font-size="11" fill="#e6edf3" opacity="0.6">⚗  /test-gen</text>
+  <text x="1003" y="139" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e">test generation</text>
+
+  <!-- /refactor -->
+  <rect x="820" y="154" width="150" height="36" rx="6" fill="#21262d" fill-opacity="0.6" stroke="#30363d" stroke-width="1"/>
+  <text x="839" y="174" font-family="'Segoe UI',system-ui,sans-serif" font-size="11" fill="#e6edf3" opacity="0.6">↻  /refactor</text>
+  <text x="839" y="185" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e">safe multi-file refactoring</text>
+
+  <!-- /research -->
+  <rect x="984" y="154" width="150" height="36" rx="6" fill="#21262d" fill-opacity="0.6" stroke="#30363d" stroke-width="1"/>
+  <text x="1003" y="174" font-family="'Segoe UI',system-ui,sans-serif" font-size="11" fill="#e6edf3" opacity="0.6">⌕  /research</text>
+  <text x="1003" y="185" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e">structured investigation</text>
+
+  <!-- /debug -->
+  <rect x="820" y="200" width="150" height="36" rx="6" fill="#21262d" fill-opacity="0.6" stroke="#30363d" stroke-width="1"/>
+  <text x="839" y="220" font-family="'Segoe UI',system-ui,sans-serif" font-size="11" fill="#e6edf3" opacity="0.6">⚡  /systematic-debugging</text>
+  <text x="839" y="231" font-family="'Segoe UI',system-ui,sans-serif" font-size="9" fill="#8b949e">root cause analysis</text>
+
+  <!-- + 28 more -->
+  <rect x="984" y="200" width="150" height="36" rx="6" fill="#21262d" fill-opacity="0.6" stroke="#30363d" stroke-width="1"/>
+  <text x="1059" y="222" font-family="'Segoe UI',system-ui,sans-serif" font-size="12" fill="#8b949e" text-anchor="middle">+ 28 more skills</text>
+
+  <!-- vertical ellipsis separator between active rows and right panel -->
+  <line x1="810" y1="103" x2="810" y2="480" stroke="#21262d" stroke-width="1"/>
+
+  <!-- ═══ FOOTER ═══ -->
+  <line x1="30" y1="480" x2="1170" y2="480" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Corner accent dots -->
+  <circle cx="40" cy="40" r="1.5" fill="#00d2ff" opacity="0.4"/>
+  <circle cx="1160" cy="40" r="1.5" fill="#00d2ff" opacity="0.4"/>
+</svg>
