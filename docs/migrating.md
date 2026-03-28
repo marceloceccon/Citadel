@@ -1,5 +1,7 @@
 # Migrating from Copy-Based Install
 
+> last-updated: 2026-03-28
+
 If you previously installed Citadel by copying `.claude/`, `.planning/`, and `scripts/`
 into your project, follow these steps to switch to the plugin model.
 
