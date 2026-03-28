@@ -14,6 +14,22 @@ const fs = require('fs');
 const path = require('path');
 const health = require('./harness-health-util');
 
+const CITADEL_UI = process.env.CITADEL_UI === 'true';
+
+function hookOutput(hookName, action, message, data = {}) {
+  if (CITADEL_UI) {
+    process.stdout.write(JSON.stringify({
+      hook: hookName,
+      action,
+      message,
+      timestamp: new Date().toISOString(),
+      data,
+    }));
+  } else {
+    process.stdout.write(message);
+  }
+}
+
 function main() {
   let input = '';
   process.stdin.setEncoding('utf8');
@@ -36,10 +52,11 @@ function main() {
 
     // Surface to Claude so it knows the session ended abnormally
     if (error) {
-      process.stdout.write(
+      hookOutput('stop-failure', 'error',
         `[StopFailure] A Stop hook failed: ${hookName}\n` +
         `Error: ${error}\n` +
-        `This session may not have cleaned up properly. Check .planning/telemetry/audit.jsonl for details.`
+        `This session may not have cleaned up properly. Check .planning/telemetry/audit.jsonl for details.`,
+        { hookName, error }
       );
     }
 

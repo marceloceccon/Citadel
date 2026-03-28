@@ -42,7 +42,9 @@ function increment(hook, metric) {
   ensureTelemetryDir();
   try {
     const entry = JSON.stringify({
+      schema: 1,
       hook,
+      event: 'counter',
       metric,
       timestamp: new Date().toISOString(),
     });
@@ -60,7 +62,9 @@ function logTiming(hook, durationMs, meta = {}) {
   ensureTelemetryDir();
   try {
     const entry = JSON.stringify({
+      schema: 1,
       hook,
+      event: 'timing',
       duration_ms: durationMs,
       timestamp: new Date().toISOString(),
       ...meta,
@@ -193,8 +197,7 @@ function getTypecheckConfig(language) {
 
 
 /**
- * Log a hook block or error event to hook-errors.log.
- * One line per event: timestamp | hook | action | detail
+ * Log a hook block or error event to hook-errors.jsonl.
  * @param {string} hook - Hook name
  * @param {string} action - What happened ('blocked', 'error', 'parse-fail')
  * @param {string} detail - What was blocked or what failed
@@ -202,9 +205,14 @@ function getTypecheckConfig(language) {
 function logBlock(hook, action, detail) {
   ensureTelemetryDir();
   try {
-    const line = `${new Date().toISOString()} | ${hook} | ${action} | ${detail}
-`;
-    fs.appendFileSync(path.join(TELEMETRY_DIR, 'hook-errors.log'), line, 'utf8');
+    const entry = JSON.stringify({
+      schema: 1,
+      timestamp: new Date().toISOString(),
+      hook,
+      action,
+      detail,
+    });
+    fs.appendFileSync(path.join(TELEMETRY_DIR, 'hook-errors.jsonl'), entry + '\n', 'utf8');
   } catch { /* telemetry should never break the hook */ }
 }
 
@@ -236,7 +244,18 @@ function validatePath(filePath) { return _validateInput(filePath, 'path', PATH_M
 function validateCommand(command) { return _validateInput(command, 'command', CMD_META_RE); }
 
 function securityWarning(hook, message) {
-  process.stdout.write(`[SECURITY] ${hook}: ${message}\n`);
+  const msg = `[SECURITY] ${hook}: ${message}\n`;
+  if (process.env.CITADEL_UI === 'true') {
+    process.stdout.write(JSON.stringify({
+      hook,
+      action: 'security-warning',
+      message: msg.trim(),
+      timestamp: new Date().toISOString(),
+      data: {},
+    }));
+  } else {
+    process.stdout.write(msg);
+  }
   increment(hook, 'security-warning');
 }
 
@@ -252,6 +271,7 @@ function writeAuditLog(event, data = {}) {
   ensureTelemetryDir();
   try {
     const entry = JSON.stringify({
+      schema: 1,
       event,
       timestamp: new Date().toISOString(),
       project: path.basename(PROJECT_ROOT),

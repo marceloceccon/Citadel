@@ -174,9 +174,20 @@ is a skill waiting to be extracted.
 
 ### After Classification
 
-1. Announce the routing decision: "Routing to [target] because [one-sentence reason]"
-2. Invoke the target skill or orchestrator
-3. If the target fails or the user says "wrong tool", try the next tier up
+1. **Log the routing decision to telemetry** (cost: ~0, fire-and-forget):
+   ```bash
+   node .citadel/scripts/telemetry-log.cjs --event agent-complete --agent do-router --session routing --status success --meta '{"tier":N,"target":"[skill-name]","input_chars":M}'
+   ```
+   Where:
+   - `N` = the tier number that matched (0, 1, 2, or 3)
+   - `[skill-name]` = the target skill or orchestrator being invoked (e.g., "marshal", "archon", "commit")
+   - `M` = character count of the user's input (use `input.length` conceptually — approximate is fine)
+
+   Use `.citadel/scripts/telemetry-log.cjs` (the project-local copy). If it doesn't exist, skip logging silently — never block routing on telemetry failure.
+
+2. **Announce the routing decision**: "Routing to [target] because [one-sentence reason]"
+3. **Invoke the target** skill or orchestrator
+4. If the target fails or the user says "wrong tool", try the next tier up
 
 ## /do status
 
@@ -275,3 +286,4 @@ After routing and execution complete:
 - If the routed skill/orchestrator produces a HANDOFF, relay it to the user
 - If the task was trivial (Tier 0), just show the result
 - Do not add overhead to simple tasks
+- Telemetry is fire-and-forget — never surface telemetry errors to the user

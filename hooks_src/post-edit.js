@@ -23,6 +23,22 @@ const health = require('./harness-health-util');
 
 const PROJECT_ROOT = health.PROJECT_ROOT;
 
+const CITADEL_UI = process.env.CITADEL_UI === 'true';
+
+function hookOutput(hookName, action, message, data = {}) {
+  if (CITADEL_UI) {
+    process.stdout.write(JSON.stringify({
+      hook: hookName,
+      action,
+      message,
+      timestamp: new Date().toISOString(),
+      data,
+    }));
+  } else {
+    process.stdout.write(message);
+  }
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -93,7 +109,7 @@ function typeCheck(filePath, relativePath) {
         const telemetryDir = path.dirname(notifiedFlag);
         if (fs.existsSync(telemetryDir)) {
           fs.writeFileSync(notifiedFlag, Date.now().toString());
-          process.stdout.write('[typecheck] No typecheck configured. Run /do setup to enable per-edit type checking.');
+          hookOutput('post-edit', 'info', '[typecheck] No typecheck configured. Run /do setup to enable per-edit type checking.');
         }
       } catch {
         // Silently skip if we can't write the flag
@@ -150,7 +166,7 @@ function typecheckTypeScript(filePath, relativePath) {
         ...lines.slice(0, 10),
         lines.length > 10 ? `  ... and ${lines.length - 10} more` : null,
       ].filter(Boolean).join('\n');
-      process.stdout.write(msg);
+      hookOutput('post-edit', 'error', msg, { file: relativePath, errors: lines.slice(0, 10), exit_code: 2 });
       return 2;
     }
     return 0;
@@ -181,7 +197,7 @@ function typecheckPython(filePath, relativePath, command) {
     const output = (err.stdout || '') + (err.stderr || '');
     const lines = output.split('\n').filter(l => l.includes('error'));
     if (lines.length > 0) {
-      process.stdout.write(`[typecheck] Errors in ${relativePath}:\n${lines.slice(0, 10).join('\n')}`);
+      hookOutput('post-edit', 'error', `[typecheck] Errors in ${relativePath}:\n${lines.slice(0, 10).join('\n')}`, { file: relativePath, errors: lines.slice(0, 10), exit_code: 2 });
       return 2;
     }
     return 0;
@@ -203,7 +219,7 @@ function typecheckGo(filePath, relativePath) {
   } catch (err) {
     const output = (err.stdout || '') + (err.stderr || '');
     if (output.trim()) {
-      process.stdout.write(`[typecheck] go vet issues:\n${output.slice(0, 500)}`);
+      hookOutput('post-edit', 'error', `[typecheck] go vet issues:\n${output.slice(0, 500)}`, { file: relativePath, errors: [output.slice(0, 500)], exit_code: 2 });
       return 2;
     }
     return 0;
@@ -223,7 +239,7 @@ function typecheckRust() {
     const output = (err.stdout || '') + (err.stderr || '');
     const errors = output.split('\n').filter(l => l.includes('error'));
     if (errors.length > 0) {
-      process.stdout.write(`[typecheck] cargo check errors:\n${errors.slice(0, 10).join('\n')}`);
+      hookOutput('post-edit', 'error', `[typecheck] cargo check errors:\n${errors.slice(0, 10).join('\n')}`, { file: '', errors: errors.slice(0, 10), exit_code: 2 });
       return 2;
     }
     return 0;
@@ -258,9 +274,7 @@ function performanceLint(filePath, relativePath) {
   }
 
   if (warnings.length > 0) {
-    process.stdout.write(
-      `[lint] ${relativePath}:\n` + warnings.map(w => `  - ${w}`).join('\n') + '\n'
-    );
+    hookOutput('post-edit', 'warned', `[lint] ${relativePath}:\n` + warnings.map(w => `  - ${w}`).join('\n') + '\n', { file: relativePath, warnings });
   }
 }
 
@@ -316,9 +330,7 @@ function dependencyPatternLint(filePath, relativePath) {
   }
 
   if (warnings.length > 0) {
-    process.stdout.write(
-      '[dep-lint] ' + relativePath + ':\n' + warnings.map(function(w) { return '  - ' + w; }).join('\n') + '\n'
-    );
+    hookOutput('post-edit', 'warned', '[dep-lint] ' + relativePath + ':\n' + warnings.map(function(w) { return '  - ' + w; }).join('\n') + '\n', { file: relativePath, warnings });
   }
 }
 
@@ -388,11 +400,10 @@ function designManifestLint(filePath, relativePath) {
   const offPalette = [...foundColors].filter(c => !paletteColors.includes(c));
 
   if (offPalette.length > 0) {
-    process.stdout.write(
-      `[design] ${relativePath}: Found ${offPalette.length} color(s) not in design manifest palette: ${offPalette.slice(0, 5).join(', ')}` +
+    const msg = `[design] ${relativePath}: Found ${offPalette.length} color(s) not in design manifest palette: ${offPalette.slice(0, 5).join(', ')}` +
       (offPalette.length > 5 ? ` (+${offPalette.length - 5} more)` : '') +
-      `\n  Palette: ${paletteColors.slice(0, 8).join(', ')}${paletteColors.length > 8 ? ' ...' : ''}\n`
-    );
+      `\n  Palette: ${paletteColors.slice(0, 8).join(', ')}${paletteColors.length > 8 ? ' ...' : ''}\n`;
+    hookOutput('post-edit', 'warned', msg, { file: relativePath, offPalette, palette: paletteColors });
   }
 }
 

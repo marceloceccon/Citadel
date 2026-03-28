@@ -32,6 +32,22 @@ try {
 
 const QUEUE_PATH = path.join(PROJECT_ROOT, '.planning', 'telemetry', 'doc-sync-queue.jsonl');
 
+const CITADEL_UI = process.env.CITADEL_UI === 'true';
+
+function hookOutput(hookName, action, message, data = {}) {
+  if (CITADEL_UI) {
+    process.stdout.write(JSON.stringify({
+      hook: hookName,
+      action,
+      message,
+      timestamp: new Date().toISOString(),
+      data,
+    }));
+  } else {
+    process.stdout.write(message);
+  }
+}
+
 function main() {
   const dryRun = process.argv.includes('--dry-run');
 
@@ -39,7 +55,7 @@ function main() {
   let lines = [];
   try {
     if (!fs.existsSync(QUEUE_PATH)) {
-      process.stdout.write('[doc-sync] No queue file found — nothing to process.\n');
+      hookOutput('doc-sync', 'info', '[doc-sync] No queue file found — nothing to process.\n');
       process.exit(0);
     }
     const raw = fs.readFileSync(QUEUE_PATH, 'utf8');
@@ -50,7 +66,7 @@ function main() {
   }
 
   if (lines.length === 0) {
-    process.stdout.write('[doc-sync] Queue is empty — no doc updates needed.\n');
+    hookOutput('doc-sync', 'info', '[doc-sync] Queue is empty — no doc updates needed.\n');
     process.exit(0);
   }
 
@@ -68,7 +84,7 @@ function main() {
   const pending = entries.filter(e => e.status === 'needs-review');
 
   if (pending.length === 0) {
-    process.stdout.write('[doc-sync] All items already surfaced — nothing new.\n');
+    hookOutput('doc-sync', 'info', '[doc-sync] All items already surfaced — nothing new.\n');
     process.exit(0);
   }
 
@@ -85,19 +101,16 @@ function main() {
   const fileList = [...new Set(stillExist.map(e => e.file))];
 
   if (fileList.length === 0) {
-    process.stdout.write('[doc-sync] All flagged files have been deleted — nothing to review.\n');
+    hookOutput('doc-sync', 'info', '[doc-sync] All flagged files have been deleted — nothing to review.\n');
   } else {
-    process.stdout.write(
-      `[doc-sync] ${fileList.length} file(s) may need doc updates:\n` +
-      fileList.map(f => '  - ' + f).join('\n') + '\n'
-    );
+    let msg = `[doc-sync] ${fileList.length} file(s) may need doc updates:\n` +
+      fileList.map(f => '  - ' + f).join('\n') + '\n';
     if (gone > 0) {
-      process.stdout.write(`  (${gone} item(s) skipped — source file no longer exists)\n`);
+      msg += `  (${gone} item(s) skipped — source file no longer exists)\n`;
     }
-    process.stdout.write(
-      '\nThese files have exported function signatures and co-located documentation.\n' +
-      'Review and update README.md or JSDoc comments as needed.\n'
-    );
+    msg += '\nThese files have exported function signatures and co-located documentation.\n' +
+      'Review and update README.md or JSDoc comments as needed.\n';
+    hookOutput('doc-sync', 'info', msg, { files: fileList, skipped: gone });
   }
 
   // Mark surfaced items in the queue (rewrite the file)

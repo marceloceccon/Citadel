@@ -18,6 +18,22 @@ const PLUGIN_DATA_DIR = health.PLUGIN_DATA_DIR;
 const STATE_FILE = path.join(PLUGIN_DATA_DIR, 'compact-state.json');
 const LEGACY_STATE_FILE = path.join(PROJECT_ROOT, '.claude', 'compact-state.json');
 
+const CITADEL_UI = process.env.CITADEL_UI === 'true';
+
+function hookOutput(hookName, action, message, data = {}) {
+  if (CITADEL_UI) {
+    process.stdout.write(JSON.stringify({
+      hook: hookName,
+      action,
+      message,
+      timestamp: new Date().toISOString(),
+      data,
+    }));
+  } else {
+    process.stdout.write(message);
+  }
+}
+
 function main() {
   // Try PLUGIN_DATA_DIR first, fall back to legacy .claude/ location
   const stateFile = fs.existsSync(STATE_FILE) ? STATE_FILE
@@ -53,7 +69,10 @@ function main() {
 
   if (lines.length > 1) {
     lines.push('  Read the campaign/session file to rebuild full context.');
-    process.stdout.write(lines.join('\n'));
+    hookOutput('restore-compact', 'info', lines.join('\n'), {
+      activeCampaign: state.activeCampaign || null,
+      activeFleetSession: state.activeFleetSession || null,
+    });
   }
 
   process.exit(0);

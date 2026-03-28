@@ -25,6 +25,22 @@ const health = require('./harness-health-util');
 const PROJECT_ROOT = health.PROJECT_ROOT;
 const PLUGIN_DATA_DIR = health.PLUGIN_DATA_DIR;
 
+const CITADEL_UI = process.env.CITADEL_UI === 'true';
+
+function hookOutput(hookName, action, message, data = {}) {
+  if (CITADEL_UI) {
+    process.stdout.write(JSON.stringify({
+      hook: hookName,
+      action,
+      message,
+      timestamp: new Date().toISOString(),
+      data,
+    }));
+  } else {
+    process.stdout.write(message);
+  }
+}
+
 function main() {
   health.increment('post-compact', 'count');
 
@@ -84,7 +100,10 @@ function main() {
 
   if (hasContent) {
     lines.push('  Read the campaign/fleet file to fully restore context before continuing.');
-    process.stdout.write(lines.join('\n'));
+    hookOutput('post-compact', 'info', lines.join('\n'), {
+      activeCampaign: state.activeCampaign || null,
+      activeFleetSession: state.activeFleetSession || null,
+    });
   }
 
   process.exit(0);

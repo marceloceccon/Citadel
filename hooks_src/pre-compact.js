@@ -35,6 +35,22 @@ const PROJECT_ROOT = health.PROJECT_ROOT;
 const PLUGIN_DATA_DIR = health.PLUGIN_DATA_DIR;
 const STATE_FILE = path.join(PLUGIN_DATA_DIR, 'compact-state.json');
 
+const CITADEL_UI = process.env.CITADEL_UI === 'true';
+
+function hookOutput(hookName, action, message, data = {}) {
+  if (CITADEL_UI) {
+    process.stdout.write(JSON.stringify({
+      hook: hookName,
+      action,
+      message,
+      timestamp: new Date().toISOString(),
+      data,
+    }));
+  } else {
+    process.stdout.write(message);
+  }
+}
+
 function main() {
   health.increment('pre-compact', 'count');
 
@@ -129,7 +145,11 @@ function main() {
     if (state.activeFleetSession) lines.push(`  Active fleet session: ${state.activeFleetSession}`);
     if (state.pendingResearch.length) lines.push(`  Recent research files: ${state.pendingResearch.length} file(s)`);
     lines.push('  Set preCompact.handoffMode to "auto" in harness.json to save this automatically.');
-    process.stdout.write(lines.join('\n'));
+    hookOutput('pre-compact', 'info', lines.join('\n'), {
+      activeCampaign: state.activeCampaign,
+      activeFleetSession: state.activeFleetSession,
+      pendingResearchCount: state.pendingResearch.length,
+    });
   }
   // mode "off": no output, no handoff doc
 
