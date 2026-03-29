@@ -1045,6 +1045,93 @@
     .screen-2 { overflow-y: auto; scrollbar-width: none; }
     .screen-2::-webkit-scrollbar { display: none; }
 
+    /* ─── Output Previews ─── */
+    .previews-section {
+      width: 100%; max-width: 700px;
+      padding: 48px 32px 0;
+      margin: 0 auto;
+    }
+    .previews-heading {
+      text-align: center; margin-bottom: 32px;
+    }
+    .previews-heading h2 {
+      font-size: 22px; font-weight: 600; color: var(--text);
+    }
+    .previews-heading p {
+      font-size: 14px; color: var(--muted); margin-top: 8px;
+    }
+    .preview-card {
+      padding: 0; border-radius: 10px; overflow: hidden;
+      border: 1.5px solid color-mix(in srgb, var(--preview-color, var(--border)) 30%, var(--border));
+      background: var(--surface);
+      margin-bottom: 20px;
+    }
+    .preview-card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .preview-card-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--preview-color, var(--muted));
+    }
+    .preview-card-label {
+      font-size: 12px; font-weight: 600;
+      color: var(--preview-color, var(--muted));
+      font-family: 'SF Mono', monospace;
+      letter-spacing: 0.5px;
+    }
+    .preview-card-context {
+      font-size: 11px; color: var(--dim);
+      margin-left: auto; font-family: 'SF Mono', monospace;
+    }
+    .preview-card-body {
+      padding: 18px 20px;
+      font-family: 'SF Mono', monospace;
+      font-size: 12.5px; line-height: 1.7;
+      color: var(--muted);
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .preview-card-body .pv-cmd { color: var(--cyan); }
+    .preview-card-body .pv-label { color: var(--text); font-weight: 600; }
+    .preview-card-body .pv-dim { color: var(--dim); }
+    .preview-card-body .pv-green { color: var(--green); }
+    .preview-card-body .pv-orange { color: var(--orange); }
+    .preview-card-body .pv-purple { color: var(--purple); }
+
+    /* ─── Final CTA ─── */
+    .final-cta {
+      width: 100%; max-width: 700px;
+      margin: 0 auto; padding: 48px 32px 32px;
+      text-align: center;
+    }
+    .final-cta-label {
+      font-size: 14px; color: var(--muted); margin-bottom: 14px;
+    }
+    .final-cta-cmd {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 14px 24px; border-radius: 10px;
+      background: var(--surface);
+      border: 1.5px solid color-mix(in srgb, var(--cyan) 35%, var(--border));
+      font-family: 'SF Mono', monospace; font-size: 14px;
+      color: var(--cyan); cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+    .final-cta-cmd:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 24px color-mix(in srgb, var(--cyan) 15%, transparent);
+    }
+    .final-cta-copy {
+      font-size: 10px; padding: 3px 9px; border-radius: 4px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer;
+      font-family: 'SF Mono', monospace;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .final-cta-copy:hover { border-color: var(--cyan); color: var(--cyan); }
+
     /* ─── Responsive ─── */
     @media (max-width: 760px) {
       nav { padding: 12px 20px; gap: 12px; }
@@ -1074,6 +1161,9 @@
       .install-left h2 { font-size: 22px; }
       .install-section { padding: 40px 16px; }
       .campaign-depth { padding: 40px 16px; margin-top: 32px; }
+      .previews-section { padding: 32px 16px 0; }
+      .final-cta { padding: 32px 16px 24px; }
+      .final-cta-cmd { font-size: 12px; padding: 12px 16px; }
       .fork-branches { flex-direction: column; }
       .fork-or-divider { display: block; }
     }
@@ -1489,6 +1579,70 @@
     </details>
   </div><!-- /cascade-section -->
 
+  <!-- Output previews — real Citadel output, not wireframes -->
+  <div class="previews-section">
+    <div class="previews-heading">
+      <h2>What you actually get</h2>
+      <p>Real output from real sessions. No wireframes, no mockups.</p>
+    </div>
+
+    <!-- Preview 1: /do routing -->
+    <div class="preview-card" style="--preview-color:var(--green)">
+      <div class="preview-card-header">
+        <div class="preview-card-dot"></div>
+        <div class="preview-card-label">ROUTING</div>
+        <div class="preview-card-context">/do review the auth module</div>
+      </div>
+      <div class="preview-card-body"><span class="pv-dim">Tier 2 keyword match</span>
+<span class="pv-label">Routing to</span> <span class="pv-cmd">/review</span> <span class="pv-dim">because input contains "review" (keyword match, 0 tokens)</span>
+
+<span class="pv-green">--- HANDOFF ---</span>
+<span class="pv-label">- 5-pass review complete</span>: auth module (src/auth/)
+- <span class="pv-orange">3 issues found</span>: 1 security (token expiry unchecked), 2 style
+- Security issue is blocking — fix before merge
+- No test regressions detected
+<span class="pv-green">---</span></div>
+    </div>
+
+    <!-- Preview 2: Campaign HANDOFF -->
+    <div class="preview-card" style="--preview-color:var(--orange)">
+      <div class="preview-card-header">
+        <div class="preview-card-dot"></div>
+        <div class="preview-card-label">CAMPAIGN</div>
+        <div class="preview-card-context">/archon — Phase 3 of 4</div>
+      </div>
+      <div class="preview-card-body"><span class="pv-dim">Phase 3: Build · auth-overhaul campaign</span>
+
+<span class="pv-orange">--- HANDOFF ---</span>
+<span class="pv-label">- Built OAuth2 integration</span> with PKCE flow (src/auth/oauth.ts)
+- Session middleware rewritten — JWT with refresh rotation
+- <span class="pv-green">typecheck: clean</span> · <span class="pv-green">tests: 47 pass, 0 fail</span> · <span class="pv-green">build: success</span>
+- Next: Phase 4 (verify) — security audit + integration test
+- Session resumes automatically — campaign state preserved to disk
+<span class="pv-orange">---</span></div>
+    </div>
+
+    <!-- Preview 3: Fleet wave coordination -->
+    <div class="preview-card" style="--preview-color:var(--purple)">
+      <div class="preview-card-header">
+        <div class="preview-card-dot"></div>
+        <div class="preview-card-label">FLEET</div>
+        <div class="preview-card-context">/fleet — Wave 2 of 3</div>
+      </div>
+      <div class="preview-card-body"><span class="pv-dim">Wave 2 complete · 3 agents · isolated worktrees</span>
+
+<span class="pv-purple">Agent A</span> <span class="pv-dim">(wt-fleet-a)</span>: migrated api/ to strict TypeScript <span class="pv-green">✓</span>
+<span class="pv-purple">Agent B</span> <span class="pv-dim">(wt-fleet-b)</span>: migrated components/ to strict TypeScript <span class="pv-green">✓</span>
+<span class="pv-purple">Agent C</span> <span class="pv-dim">(wt-fleet-c)</span>: migrated utils/ — <span class="pv-orange">1 conflict</span> with Agent A
+
+<span class="pv-label">Discovery relay</span>: Agent A found 12 implicit <span class="pv-cmd">any</span> casts in shared types
+  → relayed to Agents B and C before Wave 3
+
+<span class="pv-label">Merge status</span>: A <span class="pv-green">merged</span> · B <span class="pv-green">merged</span> · C <span class="pv-orange">pending conflict resolution</span>
+<span class="pv-dim">Wave 3 will resolve C's conflict and run final typecheck.</span></div>
+    </div>
+  </div><!-- /previews-section -->
+
   <!-- Campaign depth section -->
   <div class="campaign-depth">
     <div class="campaign-depth-inner">
@@ -1522,7 +1676,7 @@
   <!-- Stats bar -->
   <div class="stat-bar">
     <div class="stat">
-      <div class="stat-num">33</div>
+      <div class="stat-num">34</div>
       <div class="stat-label">Skills</div>
       <div class="stat-caption">covering code quality, debugging, research, orchestration, and more</div>
     </div>
@@ -1576,6 +1730,15 @@
         </div>
         <a class="install-guide-link" href="#" onclick="openPanel('install'); return false;">Full install guide →</a>
       </div>
+    </div>
+  </div>
+
+  <!-- Final CTA — single copy-pasteable command -->
+  <div class="final-cta">
+    <div class="final-cta-label">One command. Any project.</div>
+    <div class="final-cta-cmd" onclick="navigator.clipboard.writeText('claude plugin add https://github.com/SethGammon/Citadel').then(()=>{this.querySelector('.final-cta-copy').textContent='copied!';setTimeout(()=>{this.querySelector('.final-cta-copy').textContent='copy'},1500)})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+      claude plugin add https://github.com/SethGammon/Citadel
+      <button class="final-cta-copy">copy</button>
     </div>
   </div>
 
@@ -1643,7 +1806,7 @@
   <!-- Skills panel -->
   <div class="side-panel" id="panel-skills">
     <div class="panel-header">
-      <span class="panel-title">Skills — 33 installed</span>
+      <span class="panel-title">Skills — 34 installed</span>
       <button class="panel-close" onclick="closePanel()">✕</button>
     </div>
     <div class="panel-body">
