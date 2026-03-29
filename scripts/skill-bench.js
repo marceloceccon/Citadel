@@ -170,10 +170,12 @@ function discoverScenarios() {
   if (!fs.existsSync(SKILLS_DIR)) return [];
 
   const scenarios = [];
-  // Discover skill names from flat *.md files in skills/
+  // Discover skill names from nested skills/{name}/SKILL.md directories
   const skillNames = fs.readdirSync(SKILLS_DIR)
-    .filter(name => name.endsWith('.md') && fs.statSync(path.join(SKILLS_DIR, name)).isFile())
-    .map(name => name.slice(0, -3)); // strip .md extension
+    .filter(name => {
+      const skillFile = path.join(SKILLS_DIR, name, 'SKILL.md');
+      return fs.existsSync(skillFile) && fs.statSync(skillFile).isFile();
+    });
 
   for (const skillName of skillNames) {
     const benchDir = path.join(SKILLS_DIR, skillName, '__benchmarks__');

@@ -38,7 +38,7 @@ Open an issue on [GitHub](https://github.com/SethGammon/Citadel/issues). Include
 
 ## Adding a New Skill
 
-Skills live in `skills/{name}.md` (flat files, not nested). Every skill needs:
+Skills live in `skills/{name}/SKILL.md` (one directory per skill). Every skill needs:
 
 ```yaml
 ---

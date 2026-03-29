@@ -426,7 +426,7 @@ inconsistent -- clean up on error.
 
 ```
 ---HANDOFF---
-- Built: skills/watch.md -- file sentinel skill with poll-based change detection
+- Built: skills/watch/SKILL.md -- file sentinel skill with poll-based change detection
 - Commands: start, stop, status, scan with git diff against stored commit hash
 - Detection: marker comments (@citadel: action) in 4 comment styles + file classification
 - Dispatch: markers route through /do (batch limit 5), unmarked changes become intake items
