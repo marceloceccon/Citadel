@@ -1,10 +1,11 @@
 ---
 name: organize
 description: >-
-  Scans a project's directory structure, detects organizational patterns,
-  recommends or lets the user choose a convention, then writes an enforceable
-  manifest that hooks check on every file write. Handles dynamic directory
-  lifecycle with scoped cleanup.
+  Three-pass project health scan: architectural compliance (are source files in
+  the right layers?), filesystem hygiene (loose files, misplaced assets, stale
+  artifacts), and bloat detection (oversized files, binaries in git, compressible
+  assets). Reports composite score. Also manages enforceable directory manifests
+  and dynamic directory lifecycle.
 user-invocable: true
 auto-trigger: false
 trigger_keywords:
@@ -18,22 +19,28 @@ trigger_keywords:
   - cleanup directories
   - directory convention
   - where should this go
+  - messy project
+  - project health
+  - bloat
 last-updated: 2026-03-28
 ---
 
-# /organize -- Directory Organization
+# /organize -- Project Organization Health
 
 ## Identity
 
-You are a project structure analyst and enforcer. You study how a codebase is
-already organized, detect the conventions in use, recommend improvements or let
-the user choose their preferred style, then write a machine-readable manifest
-that hooks enforce on every file operation. You never impose structure -- you
-discover it, propose it, and lock it only when the user agrees.
+You are a project health analyst. You run three passes on every scan:
+architectural compliance, filesystem hygiene, and bloat detection. You report
+all three scores and a composite so the user gets an honest picture of their
+project's organization -- not just whether source files are in the right
+folders, but whether the project as a whole is clean, lean, and well-maintained.
+You never impose structure -- you discover it, propose it, and lock it only
+when the user agrees.
 
 ## Orientation
 
 **Use when:**
+- User wants to know if their project is organized (the default scan answers this)
 - Setting up a new project and want consistent directory conventions
 - Existing project has grown messy and needs structure alignment
 - User asks "where should this file go?" or "how is this project organized?"
@@ -74,18 +81,27 @@ discover it, propose it, and lock it only when the user agrees.
 4. **If `organization` exists and user ran `--cleanup`:** Jump to Step 7
 5. **If no `organization` key:** Continue to Step 2
 
-### Step 2: SCAN -- Analyze Project Structure
+### Step 2: SCAN -- Three-Pass Project Analysis
 
-Map the project's directory tree. Focus on directories, not individual files.
+Every scan runs all three passes. This is not optional. A user running `/organize`
+gets the full picture without having to know what to ask for.
+
+**Do NOT use `find` or `Get-ChildItem`** anywhere in this skill -- these are
+platform-specific. Use the **Glob tool** and **Bash** (`git ls-files`, `du`,
+`wc`) for cross-platform compatibility.
+
+---
+
+#### Pass 1: Architectural Compliance
+
+Map the project's directory tree and check whether source files follow a
+consistent convention.
 
 1. Use the **Glob tool** with pattern `**/` to discover directories. Filter out noise
-   directories from the results: `node_modules`, `.git`, `.planning`, `.citadel`,
+   directories: `node_modules`, `.git`, `.planning`, `.citadel`,
    `.claude`, `dist`, `build`, `__pycache__`, `.next`, `target`, `.venv`, `venv`.
    Cap at 200 directories. If the project is too large, scan only the top 3 levels
    (`*/`, `*/*/`, `*/*/*/`).
-
-   **Do NOT use `find` or `Get-ChildItem`** -- these are platform-specific. The Glob
-   tool works cross-platform and is available in every Claude Code session.
 2. Read `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, or equivalent to understand the stack
 3. Read harness.json for `language` and `framework` fields
 4. Count files per directory to find the "heavy" areas (where most code lives)
@@ -95,8 +111,10 @@ Map the project's directory tree. Focus on directories, not individual files.
    - `src/auth/components/`, `src/auth/hooks/` -> **hybrid** (features containing layers)
    - Flat `src/` with no subdirectories -> **flat**
    - Mixed signals -> **custom** (needs user input)
+6. If an organization manifest exists, check each placement rule against current files.
+   Count compliant vs. violating files.
 
-Record findings as structured data:
+Record findings:
 
 ```
 Detected: {convention}
@@ -105,6 +123,143 @@ Roots: [{path, purpose, file_count}]
 Signals: [{pattern, evidence, convention_match}]
 Anomalies: [{path, issue}]  // dirs that don't fit the detected pattern
 ```
+
+**Scoring:** `architecture_score = compliant_files / total_source_files * 100`.
+If no manifest exists yet, score is based on how consistently the detected
+convention is followed (files fitting the pattern vs. total files).
+
+---
+
+#### Pass 2: Filesystem Hygiene
+
+Check for mess that has nothing to do with code architecture.
+
+1. **Loose files in project root.** List every file in the project root. The
+   following are expected root files -- everything else is a finding:
+   - Config files: `package.json`, `tsconfig*.json`, `*.config.{js,ts,mjs,cjs}`,
+     `.eslintrc*`, `.prettierrc*`, `babel.config.*`, `jest.config.*`,
+     `vite.config.*`, `next.config.*`, `rollup.config.*`, `webpack.config.*`,
+     `Cargo.toml`, `pyproject.toml`, `go.mod`, `Makefile`, `Dockerfile`,
+     `docker-compose*.yml`, `.env*`, `.editorconfig`, `.gitignore`,
+     `.gitattributes`, `.npmrc`, `.nvmrc`, `.node-version`, `.tool-versions`
+   - Docs: `README*`, `LICENSE*`, `CHANGELOG*`, `CONTRIBUTING*`, `CLAUDE.md`,
+     `QUICKSTART*`, `CODE_OF_CONDUCT*`, `SECURITY*`
+   - CI/lock files: `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`,
+     `Gemfile.lock`, `.github/`, `.husky/`
+   - Plugin/harness: `.claude/`, `.planning/`, `.citadel/`, `hooks/`, `hooks_src/`,
+     `skills/`, `agents/`, `scripts/`
+   - Any file listed in `.gitignore` (already excluded from concern)
+
+   Everything else in root (especially images, PDFs, ZIPs, random scripts,
+   stray source files) is a finding.
+
+2. **Images and assets outside designated directories.** Glob for
+   `**/*.{png,jpg,jpeg,gif,svg,ico,webp,mp4,mp3,wav,pdf}`. Check if they
+   live under a recognized asset directory (`assets/`, `public/`, `static/`,
+   `images/`, `img/`, `media/`, `docs/images/`, `src/assets/`). Files outside
+   these paths are findings.
+
+3. **Large files (>1 MB).** Use `git ls-files -z | xargs -0 stat` or equivalent
+   to find tracked files over 1 MB. Report each with path and size. These are
+   often forgotten build artifacts, uncompressed assets, or vendored binaries.
+
+4. **Empty directories.** Glob for directories, check which contain zero files
+   (excluding `.gitkeep`). Report as clutter.
+
+5. **Stale files in active directories.** Use `git log --diff-filter=M --format=%at`
+   on files in `src/` (or equivalent active source root). Files not modified in
+   6+ months while their sibling files are active may be dead code or forgotten
+   experiments. Report as "potentially stale" -- advisory, not a violation.
+
+6. **Duplicate filenames.** Scan for files with identical names in different
+   directories (e.g., `utils.ts` appearing in 3 places). Not always wrong, but
+   worth flagging for awareness.
+
+**Scoring:** Start at 100, deduct:
+- -2 per loose non-standard file in project root
+- -1 per misplaced asset file (image/media outside asset dirs)
+- -3 per large file (>1 MB) tracked in git
+- -1 per empty directory
+- -0.5 per potentially stale file (capped at -10)
+- -0.5 per duplicate filename (capped at -5)
+
+Floor at 0. `hygiene_score = max(0, 100 - deductions)`.
+
+---
+
+#### Pass 3: Bloat Detection
+
+Check whether the project is carrying unnecessary weight.
+
+1. **Project size vs. source size.** Calculate:
+   - Total tracked size: `git ls-files -z | xargs -0 stat` (sum sizes)
+   - Source code size: same but filtered to code file extensions
+     (`.ts`, `.tsx`, `.js`, `.jsx`, `.py`, `.rs`, `.go`, `.java`, `.css`,
+     `.scss`, `.html`, `.md`)
+   - Ratio: `source_bytes / total_bytes`. A healthy project is >60% source.
+     Below 40% means non-source content dominates.
+
+2. **Largest files ranked.** List the top 10 largest tracked files with sizes.
+   This alone often reveals the problem.
+
+3. **Binary files in git.** Glob for tracked files that are binary:
+   `*.{png,jpg,jpeg,gif,ico,webp,mp4,mp3,wav,woff,woff2,ttf,eot,zip,tar,gz,
+   jar,dll,so,dylib,exe,bin,dat,db,sqlite,pdf}`.
+   For each, check if it could live in `.gitignore` (build output, generated
+   asset) or should be in Git LFS. Report count and total size.
+
+4. **Accidentally committed directories.** Check if any of these exist as
+   tracked paths: `node_modules/`, `dist/`, `build/`, `.next/`, `target/`,
+   `__pycache__/`, `.venv/`, `venv/`, `.cache/`, `.parcel-cache/`,
+   `.turbo/`, `coverage/`. Any hit is a critical finding.
+
+5. **Compressible assets.** For image files tracked in git, check for:
+   - PNGs over 500 KB (likely uncompressed screenshots or exports)
+   - SVGs over 100 KB (likely unoptimized exports from design tools)
+   - Any video/audio file (should almost never be in a git repo)
+
+**Scoring:** Start at 100, deduct:
+- If source ratio <60%: -(60 - ratio) (e.g., 40% source = -20)
+- -5 per accidentally committed build/dependency directory
+- -2 per binary file in git that should be gitignored or in LFS
+- -1 per compressible asset (PNG >500KB, SVG >100KB)
+- -3 per video/audio file tracked in git
+
+Floor at 0. `bloat_score = max(0, 100 - deductions)`.
+
+---
+
+#### Composite Score
+
+After all three passes:
+
+```
+composite_score = round(
+  architecture_score * 0.40 +
+  hygiene_score * 0.35 +
+  bloat_score * 0.25
+)
+```
+
+Architecture is weighted highest because it affects developer velocity most.
+Hygiene is close behind because it affects first impressions and onboarding.
+Bloat is lowest because it's the easiest to fix.
+
+**Always report all four numbers.** Never report just the architecture score.
+
+```
+=== Project Health: {project_name} ===
+
+Architecture:  {score}%  -- source file placement, layer boundaries, test colocation
+Hygiene:       {score}%  -- loose files, misplaced assets, stale artifacts, empty dirs
+Bloat:         {score}%  -- project size ratio, binaries in git, compressible assets
+-------------------------------
+Overall:       {composite}%
+```
+
+Follow the scores with the most actionable findings from each pass. Group by
+severity (critical first, advisory last). Cap at 10 findings per pass to avoid
+overwhelming the user -- mention "and N more" if truncated.
 
 ### Step 3: RECOMMEND -- Present Options
 
@@ -280,51 +435,77 @@ once they're confident the rules are correct.
 
 ### Step 5: VERIFY -- Confirm the Manifest Works
 
-1. Run a dry-run audit (Step 6 logic) against the current codebase
-2. Report how many files comply vs. how many would trigger warnings
-3. If compliance is below 80%, warn the user:
-   "Only {N}% of existing files comply with these rules. Consider adjusting
-   the rules to match your existing structure, or plan a reorganization."
-4. If compliance is above 80%, confirm:
-   "These rules match {N}% of your existing files. The enforce hook will
-   warn on new files that don't follow the convention."
+1. Run a full three-pass audit (Step 6 logic) against the current codebase
+2. Report all three scores plus composite
+3. If composite is below 60%, warn the user:
+   "Overall project health is {N}%. Here are the biggest issues to address."
+4. If architecture score is above 80% but hygiene or bloat is below 60%, call it out:
+   "Your code structure is solid ({arch}%), but hygiene ({hyg}%) and bloat
+   ({bloat}%) are dragging down overall health. The fixes are mostly quick wins."
+5. Tell the user about `--lock`, `--audit`, and `--cleanup` commands
 
-### Step 6: AUDIT -- Check Current Compliance
+### Step 6: AUDIT -- Full Three-Pass Health Check
 
-Read the organization manifest from harness.json. For each placement rule:
+Run all three passes from Step 2 (architecture, hygiene, bloat). This is the
+same logic whether called from `--audit`, from Step 5 verification, or from
+the initial `/organize` flow.
 
-1. Find all files matching the rule's glob pattern
-2. Check if each file is in the location the rule expects
-3. Collect violations
-
-Output:
+Output the composite score block first, then details:
 
 ```
-=== Organization Audit ===
+=== Project Health: {project_name} ===
 
-Convention: {convention}
-Rules checked: {N}
-Files scanned: {M}
+Architecture:  {score}%  -- source file placement, layer boundaries, test colocation
+Hygiene:       {score}%  -- loose files, misplaced assets, stale artifacts, empty dirs
+Bloat:         {score}%  -- project size ratio, binaries in git, compressible assets
+-------------------------------
+Overall:       {composite}%
 
-COMPLIANT: {count} files ({percent}%)
-VIOLATIONS: {count} files
+--- Architecture ({N} violations) ---
 
-Violations by rule:
   *.test.ts should be colocated:
-    - src/utils/helpers.test.ts (expected: src/utils/, found: src/utils/) OK
-    - tests/auth.test.ts (expected: colocated with src/auth/, found: tests/) VIOLATION
+    - tests/auth.test.ts -> should be src/auth/auth.test.ts
 
   *.types.ts should be in types/:
-    - src/components/Button.types.ts (expected: types/, found: src/components/) VIOLATION
+    - src/components/Button.types.ts -> should be types/Button.types.ts
 
-Suggested fixes:
-  - Move tests/auth.test.ts -> src/auth/auth.test.ts
-  - Move src/components/Button.types.ts -> types/Button.types.ts
+--- Hygiene ({N} findings) ---
 
-Run these moves? [y/n]
+  Loose files in project root (not config/docs):
+    - screenshot.png
+    - old-notes.txt
+    - data-export.csv
+
+  Images outside asset directories:
+    - src/components/logo.png -> should be src/assets/ or public/
+
+  Large files (>1 MB):
+    - docs/demo-recording.mp4 (12.3 MB)
+
+  Empty directories:
+    - src/deprecated/
+
+--- Bloat ({N} findings) ---
+
+  Source ratio: 45% (1.2 MB source / 2.7 MB total)
+
+  Top 5 largest files:
+    1. docs/demo-recording.mp4  (12.3 MB)
+    2. public/hero-bg.png       (2.1 MB)
+    ...
+
+  Binary files that could be gitignored:
+    - coverage/lcov.info (generated)
+    - dist/bundle.js (build output)
+
+--- Suggested Actions ---
+  [List concrete fixes, grouped: quick wins first, larger reorganizations last]
+
+Run quick fixes (move misplaced files, delete empty dirs)? [y/n]
 ```
 
-If the user says yes, execute the moves. If no, just report.
+If the user says yes, execute the safe fixes (moves, empty dir removal).
+Never auto-delete files with content -- only move them or flag for manual review.
 
 ### Step 7: CLEANUP -- Prune Dynamic Directories
 
@@ -390,12 +571,13 @@ Summary: {N} directories cleaned, {M} archived, {K} skipped
 
 All of these must be true before the skill exits:
 
+- [ ] All three passes ran (architecture, hygiene, bloat) -- never skip a pass
+- [ ] All three scores plus composite were reported to the user
 - [ ] Project directory tree was scanned (Step 2 completed or skipped with existing config)
 - [ ] User was presented with options and made a choice (not auto-decided without input)
 - [ ] Organization manifest written to harness.json under `organization` key
 - [ ] Placement rules are specific (glob + rule + reason, no vague entries)
 - [ ] Dynamic directory entries have valid scope and cleanup strategy
-- [ ] Dry-run audit was performed and compliance percentage reported
 - [ ] User was told about `--lock`, `--audit`, and `--cleanup` commands
 - [ ] No other harness.json keys were modified during the write
 
@@ -403,11 +585,11 @@ All of these must be true before the skill exits:
 
 ```
 ---HANDOFF---
+- Health: {composite}% (Architecture {arch}%, Hygiene {hyg}%, Bloat {bloat}%)
 - Convention: {convention} applied to {project}
 - {N} roots, {M} placement rules, {K} dynamic directories configured
-- Compliance: {percent}% of existing files match the rules
+- Top findings: {1-2 most impactful issues from hygiene/bloat passes}
 - Enforcement: {"advisory (unlocked)" | "blocking (locked)"}
-- Cleanup policy: {auto|prompt|manual}
-- Next: Run `/organize --lock` when confident, `/organize --audit` to check compliance
+- Next: Run `/organize --lock` when confident, `/organize --audit` to recheck
 ---
 ```
