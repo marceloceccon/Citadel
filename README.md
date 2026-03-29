@@ -11,6 +11,10 @@
 
 </div>
 
+## What Is Citadel
+
+An agent orchestration harness for Claude Code. It coordinates multiple AI agents in parallel, persists memory across sessions, and routes your intent to the cheapest execution path automatically. You install it as a plugin and it works on any codebase.
+
 ## Why Citadel Exists
 
 **Without Citadel**, every Claude Code session starts from zero. You re-explain architecture decisions. You re-discover that the auth module is fragile. You copy-paste the same review checklist. When a task is too big for one agent, you manually split it and lose context between the pieces. Your agents never get better at your codebase -- you just get better at prompting them.
@@ -65,7 +69,14 @@ Say what you want. `/do` routes it to the cheapest tool that can handle it.
 /do overhaul all three services    # Parallel fleet with isolated worktrees
 ```
 
-Classification runs across four tiers: regex pattern match (0 tokens), active session state, keyword lookup, and LLM classification (~500 tokens). A typo fix never touches a model. A platform-wide refactor gets a parallel fleet with discovery sharing between waves. You never have to choose the tool.
+Classification runs across four tiers, each cheaper than the last:
+
+1. **Pattern match** — catches trivial commands with regex. Zero tokens, zero model calls, instant.
+2. **Session state** — checks if you're mid-campaign and resumes it. Still zero tokens.
+3. **Keyword lookup** — scans your input against installed skill keywords ("review", "test", "refactor") and routes directly. Still zero tokens.
+4. **LLM classification** — only when tiers 1-3 don't match, a structured complexity analysis (~500 tokens) determines whether you need a single-step Marshal, a multi-session Archon, or a parallel Fleet.
+
+Most requests resolve at tiers 1-3 for free. Tier 4 is the exception, not the default. You never have to choose the tool.
 
 **[▶ See it route live →](https://sethgammon.github.io/Citadel/)**
 
