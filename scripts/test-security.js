@@ -186,10 +186,10 @@ function main() {
     assert(result.stdout.includes('secrets'), 'Expected secrets block message');
   });
 
-  test('external-action-gate blocks hard actions (gh pr merge)', () => {
+  test('external-action-gate blocks hard actions (gh release create)', () => {
     const input = JSON.stringify({
       tool_name: 'Bash',
-      tool_input: { command: 'gh pr merge 42' }
+      tool_input: { command: 'gh release create v1.0.0' }
     });
 
     const result = spawnSync(process.execPath, [EAG_HOOK], {
@@ -199,7 +199,26 @@ function main() {
     });
 
     assert(result.status === 2, `Expected exit code 2 (block), got ${result.status}`);
-    assert(result.stdout.includes('irreversible'), 'Expected irreversible block message');
+    assert(
+      result.stdout.includes('requires approval') || result.stdout.includes('irreversible'),
+      'Expected approval/block message for hard action'
+    );
+  });
+
+  test('external-action-gate blocks protected branch deletion', () => {
+    const input = JSON.stringify({
+      tool_name: 'Bash',
+      tool_input: { command: 'git push origin --delete main' }
+    });
+
+    const result = spawnSync(process.execPath, [EAG_HOOK], {
+      input,
+      encoding: 'utf8',
+      cwd: PLUGIN_ROOT,
+    });
+
+    assert(result.status === 2, `Expected exit code 2 (block), got ${result.status}`);
+    assert(result.stdout.includes('protected branch'), 'Expected protected branch message');
   });
 
   test('external-action-gate triggers first-encounter for soft actions', () => {
