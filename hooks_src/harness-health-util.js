@@ -426,6 +426,42 @@ function grantSessionAllow(category) {
 }
 
 /**
+ * Grant a one-time approval for a specific action.
+ * Consumed on read (single-use). Expires after 120 seconds.
+ * Used by "always-ask" consent: hook blocks, user approves, Claude writes
+ * a one-time marker, retries, hook consumes the marker and allows.
+ * @param {string} category
+ */
+function grantOneTimeAllow(category) {
+  const markerPath = path.join(PLUGIN_DATA_DIR, `consent-onetime-${category}.json`);
+  const dir = path.dirname(markerPath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(markerPath, JSON.stringify({ category, timestamp: new Date().toISOString() }));
+}
+
+/**
+ * Check and consume a one-time approval. Returns true if a fresh marker exists.
+ * The marker is deleted after reading (single-use).
+ * @param {string} category
+ * @returns {boolean}
+ */
+function consumeOneTimeAllow(category) {
+  const markerPath = path.join(PLUGIN_DATA_DIR, `consent-onetime-${category}.json`);
+  try {
+    if (!fs.existsSync(markerPath)) return false;
+    const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
+    // Always consume (delete) the marker
+    fs.unlinkSync(markerPath);
+    const age = Date.now() - new Date(marker.timestamp).getTime();
+    const TWO_MINUTES = 120 * 1000;
+    return age < TWO_MINUTES;
+  } catch {
+    try { fs.unlinkSync(markerPath); } catch { /* already gone */ }
+    return false;
+  }
+}
+
+/**
  * Determine if a protected action should proceed based on consent.
  *
  * Returns:
@@ -451,7 +487,12 @@ function checkConsent(category) {
     return { action: 'block' };
   }
 
-  // Always-ask -- block every time
+  // Always-ask -- check for one-time approval (user approved in conversation)
+  if (pref === 'always-ask') {
+    if (consumeOneTimeAllow(category)) return { action: 'allow' };
+    return { action: 'block' };
+  }
+
   return { action: 'block' };
 }
 
@@ -471,6 +512,8 @@ module.exports = {
   writeConsent,
   hasSessionAllow,
   grantSessionAllow,
+  grantOneTimeAllow,
+  consumeOneTimeAllow,
   checkConsent,
   CONSENT_CATEGORIES,
   PROJECT_ROOT,

@@ -283,8 +283,11 @@ function run(input) {
       );
     } else {
       hookOutput('external-action-gate', 'consent-block',
-        `[external-action-gate] "${label}" is an external action. ` +
-        `Show the user the exact content and get approval before executing.`,
+        `[external-action-gate] "${label}" is an external action.\n` +
+        `Show the user the exact content and get approval before executing.\n` +
+        `After approval, run:\n` +
+        `  node -e "require('./hooks_src/harness-health-util').grantOneTimeAllow('externalActions')"` +
+        `\nThen retry the command.`,
         { label, tier: 'soft', consent: 'always-ask' }
       );
     }
